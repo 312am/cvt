@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo Acentos Verdes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <style>
+      .accent-demo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+      }
+
+      .theme-scope {
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 20px;
+        background: var(--bg);
+        color: var(--text-main);
+      }
+
+      .theme-scope .module {
+        margin-top: 14px;
+      }
+
+      .theme-scope .demo-title {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+      }
+
+      .theme-scope .demo-sub {
+        margin: 4px 0 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      .theme-dark {
+        --bg: #0a0a0a;
+        --surface: rgba(24, 24, 27, 0.9);
+        --panel: rgba(24, 24, 27, 0.7);
+        --surface-soft: rgba(255, 255, 255, 0.03);
+        --surface-soft-2: rgba(255, 255, 255, 0.02);
+        --border: rgba(255, 255, 255, 0.1);
+        --border-soft: rgba(255, 255, 255, 0.08);
+        --rule: rgba(255, 255, 255, 0.06);
+        --text-main: #f4f4f5;
+        --text-body: #d4d4d8;
+        --text-muted: #a1a1aa;
+        --text-faint: #71717a;
+        --accent: #4fff4f;
+        --accent-soft: rgba(79, 255, 79, 0.12);
+        --accent-border: rgba(79, 255, 79, 0.65);
+        --quote-bg: rgba(79, 255, 79, 0.08);
+        --quote-border: rgba(79, 255, 79, 0.4);
+        --input-bg: #000000;
+      }
+
+      .theme-light-65a30d {
+        --bg: #ffffff;
+        --surface: #ffffff;
+        --panel: rgba(250, 250, 250, 0.92);
+        --surface-soft: #fafafa;
+        --surface-soft-2: #fafafa;
+        --border: rgba(228, 228, 231, 1);
+        --border-soft: rgba(228, 228, 231, 1);
+        --rule: rgba(228, 228, 231, 1);
+        --text-main: #18181b;
+        --text-body: #3f3f46;
+        --text-muted: #52525b;
+        --text-faint: #71717a;
+        --accent: #65a30d;
+        --accent-soft: #ecfccb;
+        --accent-border: rgba(101, 163, 13, 0.6);
+        --quote-bg: #f7fee7;
+        --quote-border: rgba(101, 163, 13, 0.4);
+        --input-bg: #ffffff;
+      }
+
+      .theme-light-near {
+        --bg: #ffffff;
+        --surface: #ffffff;
+        --panel: rgba(250, 250, 250, 0.92);
+        --surface-soft: #fafafa;
+        --surface-soft-2: #fafafa;
+        --border: rgba(228, 228, 231, 1);
+        --border-soft: rgba(228, 228, 231, 1);
+        --rule: rgba(228, 228, 231, 1);
+        --text-main: #18181b;
+        --text-body: #3f3f46;
+        --text-muted: #52525b;
+        --text-faint: #71717a;
+        --accent: #22c55e;
+        --accent-soft: rgba(34, 197, 94, 0.14);
+        --accent-border: rgba(22, 163, 74, 0.55);
+        --quote-bg: rgba(34, 197, 94, 0.12);
+        --quote-border: rgba(22, 163, 74, 0.42);
+        --input-bg: #ffffff;
+      }
+
+      .theme-dark-gold {
+        --bg: #0a0a0a;
+        --surface: rgba(24, 24, 27, 0.9);
+        --panel: rgba(24, 24, 27, 0.7);
+        --surface-soft: rgba(255, 255, 255, 0.03);
+        --surface-soft-2: rgba(255, 255, 255, 0.02);
+        --border: rgba(255, 255, 255, 0.1);
+        --border-soft: rgba(255, 255, 255, 0.08);
+        --rule: rgba(255, 255, 255, 0.06);
+        --text-main: #f4f4f5;
+        --text-body: #d4d4d8;
+        --text-muted: #a1a1aa;
+        --text-faint: #71717a;
+        --accent: #e8a830;
+        --accent-soft: rgba(232, 168, 48, 0.15);
+        --accent-border: rgba(232, 168, 48, 0.55);
+        --quote-bg: rgba(232, 168, 48, 0.1);
+        --quote-border: rgba(232, 168, 48, 0.42);
+        --input-bg: #000000;
+      }
+
+      .theme-light-gold {
+        --bg: #ffffff;
+        --surface: #ffffff;
+        --panel: rgba(250, 250, 250, 0.92);
+        --surface-soft: #fafafa;
+        --surface-soft-2: #fafafa;
+        --border: rgba(228, 228, 231, 1);
+        --border-soft: rgba(228, 228, 231, 1);
+        --rule: rgba(228, 228, 231, 1);
+        --text-main: #18181b;
+        --text-body: #3f3f46;
+        --text-muted: #52525b;
+        --text-faint: #71717a;
+        --accent: #e8a830;
+        --accent-soft: rgba(232, 168, 48, 0.18);
+        --accent-border: rgba(184, 121, 0, 0.45);
+        --quote-bg: rgba(232, 168, 48, 0.14);
+        --quote-border: rgba(184, 121, 0, 0.35);
+        --input-bg: #ffffff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="brand">Demo acentos #4fff4f</div>
+          <div class="studio-actions">
+            <a class="hero-btn" href="./editor.html">Volver al editor</a>
+          </div>
+        </div>
+      </header>
+
+      <main class="accent-demo-grid">
+        <section class="theme-scope theme-dark">
+          <h2 class="demo-title">Modo oscuro</h2>
+          <p class="demo-sub">Acentos, bordes y estados activos con #4fff4f.</p>
+
+          <section class="hero">
+            <div class="eyebrow">GUIAS / DEMO</div>
+            <div class="hero-grid hero-grid-single">
+              <div>
+                <h1>Ultrasonido de hombro doloroso</h1>
+                <p class="hero-sub">Por Corvianth</p>
+                <div class="meta">
+                  <span class="tag">Musculoesqueletico</span>
+                  <span class="tag">Hombro</span>
+                </div>
+              </div>
+              <div class="hero-actions">
+                <button class="hero-btn accent">Guardar</button>
+                <button class="hero-btn">Compartir</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="module module--accent">
+            <div class="module-head">Presentacion del paciente</div>
+            <div class="module-body">
+              <p class="text-block">Borde de modulo acentuado y botón activo.</p>
+              <button class="hero-btn accent">Accion principal</button>
+            </div>
+          </section>
+
+          <section class="quote-box">
+            <div class="quote-head">Punto clave</div>
+            <blockquote>Verde aplicado en bloque destacado editorial.</blockquote>
+          </section>
+        </section>
+
+        <section class="theme-scope theme-light-65a30d">
+          <h2 class="demo-title">Modo claro (#65a30d)</h2>
+          <p class="demo-sub">Version clara actual de Corvianth.</p>
+
+          <section class="hero">
+            <div class="eyebrow">GUIAS / DEMO</div>
+            <div class="hero-grid hero-grid-single">
+              <div>
+                <h1>Ultrasonido de hombro doloroso</h1>
+                <p class="hero-sub">Por Corvianth</p>
+                <div class="meta">
+                  <span class="tag">Musculoesqueletico</span>
+                  <span class="tag">Hombro</span>
+                </div>
+              </div>
+              <div class="hero-actions">
+                <button class="hero-btn accent">Guardar</button>
+                <button class="hero-btn">Compartir</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="module module--accent">
+            <div class="module-head">Presentacion del paciente</div>
+            <div class="module-body">
+              <p class="text-block">Borde de modulo acentuado y botón activo.</p>
+              <button class="hero-btn accent">Accion principal</button>
+            </div>
+          </section>
+
+          <section class="quote-box">
+            <div class="quote-head">Punto clave</div>
+            <blockquote>Verde aplicado en bloque destacado editorial.</blockquote>
+          </section>
+        </section>
+
+        <section class="theme-scope theme-light-near">
+          <h2 class="demo-title">Modo claro alterno (#22c55e)</h2>
+          <p class="demo-sub">Tono cercano a #4fff4f con mejor legibilidad.</p>
+
+          <section class="hero">
+            <div class="eyebrow">GUIAS / DEMO</div>
+            <div class="hero-grid hero-grid-single">
+              <div>
+                <h1>Ultrasonido de hombro doloroso</h1>
+                <p class="hero-sub">Por Corvianth</p>
+                <div class="meta">
+                  <span class="tag">Musculoesqueletico</span>
+                  <span class="tag">Hombro</span>
+                </div>
+              </div>
+              <div class="hero-actions">
+                <button class="hero-btn accent">Guardar</button>
+                <button class="hero-btn">Compartir</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="module module--accent">
+            <div class="module-head">Presentacion del paciente</div>
+            <div class="module-body">
+              <p class="text-block">Borde de modulo acentuado y botón activo.</p>
+              <button class="hero-btn accent">Accion principal</button>
+            </div>
+          </section>
+
+          <section class="quote-box">
+            <div class="quote-head">Punto clave</div>
+            <blockquote>Verde aplicado en bloque destacado editorial.</blockquote>
+          </section>
+        </section>
+
+        <section class="theme-scope theme-dark-gold">
+          <h2 class="demo-title">Modo oscuro (#e8a830)</h2>
+          <p class="demo-sub">Acento dorado en interfaz oscura.</p>
+
+          <section class="hero">
+            <div class="eyebrow">GUIAS / DEMO</div>
+            <div class="hero-grid hero-grid-single">
+              <div>
+                <h1>Ultrasonido de hombro doloroso</h1>
+                <p class="hero-sub">Por Corvianth</p>
+                <div class="meta">
+                  <span class="tag">Musculoesqueletico</span>
+                  <span class="tag">Hombro</span>
+                </div>
+              </div>
+              <div class="hero-actions">
+                <button class="hero-btn accent">Guardar</button>
+                <button class="hero-btn">Compartir</button>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="theme-scope theme-light-gold">
+          <h2 class="demo-title">Modo claro (#e8a830)</h2>
+          <p class="demo-sub">Acento dorado en interfaz clara.</p>
+
+          <section class="hero">
+            <div class="eyebrow">GUIAS / DEMO</div>
+            <div class="hero-grid hero-grid-single">
+              <div>
+                <h1>Ultrasonido de hombro doloroso</h1>
+                <p class="hero-sub">Por Corvianth</p>
+                <div class="meta">
+                  <span class="tag">Musculoesqueletico</span>
+                  <span class="tag">Hombro</span>
+                </div>
+              </div>
+              <div class="hero-actions">
+                <button class="hero-btn accent">Guardar</button>
+                <button class="hero-btn">Compartir</button>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+    <script src="./site-footer.js?v=20260418p"></script>
+  </body>
+</html>

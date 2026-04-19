@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Corvianth Review</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./styles.css?v=20260419j" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="brand">
+            <img
+              class="brand-logo brand-logo-dark"
+              src="./assets/corviant_a3e635_modo_oscuro.svg"
+              alt="Corviant"
+            />
+            <img
+              class="brand-logo brand-logo-light"
+              src="./assets/corviant_a3e635_modo_claro.svg"
+              alt="Corviant"
+            />
+          </div>
+          <button class="theme-toggle" id="themeToggle" type="button">
+            <span id="themeLabel">Oscuro</span>
+            <span class="theme-track"><span class="theme-thumb"></span></span>
+          </button>
+        </div>
+      </header>
+
+      <main class="layout published-layout">
+        <aside class="sidebar">
+          <div class="sticky stack">
+            <section class="module">
+              <div class="module-head">
+                <svg class="icon-sm" viewBox="0 0 50 50" fill="#a3e635" aria-hidden="true">
+                  <path d="M30.71,0C20.06,0,11.43,8.8,11.43,19.65c0,3.81,1.06,7.36,2.9,10.36L.58,44.02c-.77.79-.77,2.06,0,2.85l2.49,2.53c.77.8,2.02.8,2.8,0l13.56-13.82c3.17,2.34,7.07,3.72,11.28,3.72,10.65,0,19.29-8.8,19.29-19.65S41.37,0,30.71,0ZM30.71,32.2c-2.28,0-4.42-.63-6.25-1.74-2.2-1.31-3.95-3.31-4.99-5.68-.69-1.56-1.07-3.3-1.07-5.12,0-6.93,5.51-12.56,12.31-12.56,1.79,0,3.49.39,5.02,1.1,2.34,1.06,4.29,2.85,5.59,5.09,1.08,1.86,1.7,4.04,1.7,6.37,0,6.92-5.51,12.55-12.31,12.55Z"/>
+                </svg>
+                Navegacion
+              </div>
+              <div class="module-body nav-list" id="reviewTocNav"></div>
+            </section>
+          </div>
+        </aside>
+
+        <section class="main studio-published">
+          <section class="module module--accent">
+            <div class="module-head module-head-between">
+              <span>Revision editorial</span>
+              <span class="studio-status-chip is-review" id="reviewStatusChip">
+                En revision
+              </span>
+            </div>
+            <div class="module-body">
+              <p class="copy" id="reviewStatusMessage">
+                Valida estructura, legibilidad y consistencia de visores antes de publicar.
+              </p>
+              <div class="studio-actions">
+                <button class="hero-btn" id="returnToDraftBtn" type="button">
+                  Devolver a borrador
+                </button>
+                <button class="hero-btn accent" id="publishFromReviewBtn" type="button">
+                  Publicar ahora
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <div id="reviewArticleRoot"></div>
+        </section>
+
+        <aside class="actions">
+          <div class="sticky stack">
+            <section class="module">
+              <div class="module-head">
+                <svg class="icon-sm" viewBox="0 0 50 50" fill="#a3e635" aria-hidden="true">
+                  <path d="M30.71,0C20.06,0,11.43,8.8,11.43,19.65c0,3.81,1.06,7.36,2.9,10.36L.58,44.02c-.77.79-.77,2.06,0,2.85l2.49,2.53c.77.8,2.02.8,2.8,0l13.56-13.82c3.17,2.34,7.07,3.72,11.28,3.72,10.65,0,19.29-8.8,19.29-19.65S41.37,0,30.71,0ZM30.71,32.2c-2.28,0-4.42-.63-6.25-1.74-2.2-1.31-3.95-3.31-4.99-5.68-.69-1.56-1.07-3.3-1.07-5.12,0-6.93,5.51-12.56,12.31-12.56,1.79,0,3.49.39,5.02,1.1,2.34,1.06,4.29,2.85,5.59,5.09,1.08,1.86,1.7,4.04,1.7,6.37,0,6.92-5.51,12.55-12.31,12.55Z"/>
+                </svg>
+                Acciones
+              </div>
+              <div class="module-body side-actions-list">
+                <a class="hero-btn" href="./editor.html">Volver al editor</a>
+                <a class="hero-btn" href="./article.html" target="_blank">Abrir publicacion</a>
+              </div>
+            </section>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script defer src="./modules/hero.js"></script>
+    <script defer src="./modules/patient.js"></script>
+    <script defer src="./modules/text.js?v=20260418k"></script>
+    <script defer src="./modules/text-only.js?v=20260418k"></script>
+    <script defer src="./modules/subtitle.js?v=20260418k"></script>
+    <script defer src="./modules/key-point.js"></script>
+    <script defer src="./modules/pitfalls.js"></script>
+    <script defer src="./modules/bibliography.js?v=20260419a"></script>
+    <script defer src="./modules/viewer.js?v=20260419e"></script>
+    <script defer src="./module-registry.js"></script>
+    <script defer src="./renderer.js?v=20260419a"></script>
+    <script defer src="./theme-switch.js"></script>
+    <script defer src="./site-footer.js?v=20260419b"></script>
+    <script defer>
+      window.addEventListener("DOMContentLoaded", () => {
+        const renderer = window.CorvianthRenderer;
+        if (!renderer) return;
+
+        const WORKFLOW = renderer.WORKFLOW || {
+          DRAFT: "draft",
+          IN_REVIEW: "in_review",
+          PUBLISHED: "published",
+        };
+
+        const root = document.getElementById("reviewArticleRoot");
+        const toc = document.getElementById("reviewTocNav");
+        const statusChip = document.getElementById("reviewStatusChip");
+        const statusMessage = document.getElementById("reviewStatusMessage");
+        const returnBtn = document.getElementById("returnToDraftBtn");
+        const publishBtn = document.getElementById("publishFromReviewBtn");
+
+        let article = renderer.loadReviewArticle?.() || null;
+
+        function setChip(status) {
+          if (!statusChip) return;
+          statusChip.className = "studio-status-chip";
+          if (status === WORKFLOW.PUBLISHED) {
+            statusChip.classList.add("is-published");
+            statusChip.textContent = "Publicado";
+            return;
+          }
+          if (status === WORKFLOW.IN_REVIEW) {
+            statusChip.classList.add("is-review");
+            statusChip.textContent = "En revision";
+            return;
+          }
+          statusChip.classList.add("is-draft");
+          statusChip.textContent = "Borrador";
+        }
+
+        function showEmptyReviewState() {
+          root.innerHTML = `
+            <section class="module">
+              <div class="module-head">No hay version en revision</div>
+              <div class="module-body">
+                <p class="copy">
+                  Abre el editor y usa "Enviar a revision" para generar una version candidata.
+                </p>
+              </div>
+            </section>
+          `;
+          toc.innerHTML = "";
+          setChip(WORKFLOW.DRAFT);
+          if (statusMessage) {
+            statusMessage.textContent =
+              "Aun no existe una version en revision para validar.";
+          }
+          if (publishBtn) publishBtn.disabled = true;
+        }
+
+        function slugify(text) {
+          return String(text || "")
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, "");
+        }
+
+        function getSectionTitle(section, fallback) {
+          const heroTitle = section.querySelector(".hero h1, h1");
+          if (heroTitle?.textContent?.trim()) return heroTitle.textContent.trim();
+          const titleNode = section.querySelector(
+            ".module-head h1, .module-head h2, .module-head h3"
+          );
+          if (titleNode?.textContent?.trim()) return titleNode.textContent.trim();
+          const moduleHead = section.querySelector(".module-head");
+          if (moduleHead?.textContent?.trim()) return moduleHead.textContent.trim();
+          return fallback;
+        }
+
+        function buildToc() {
+          if (!toc) return;
+          const trackedItems = [];
+          const sections = Array.from(root.children);
+          toc.innerHTML = "";
+
+          sections.forEach((section, index) => {
+            const sectionId = `review-section-${index + 1}`;
+            section.id = sectionId;
+            const titleText = getSectionTitle(section, `Seccion ${index + 1}`);
+
+            const group = document.createElement("div");
+            group.className = "nav-group";
+
+            const sectionLink = document.createElement("a");
+            sectionLink.href = `#${sectionId}`;
+            sectionLink.className = "nav-link";
+            sectionLink.dataset.tocLink = sectionId;
+            sectionLink.innerHTML = `<span>${titleText}</span><span>&#8250;</span>`;
+            group.appendChild(sectionLink);
+
+            trackedItems.push({ id: sectionId, element: section, level: "section" });
+
+            const subtitles = Array.from(section.querySelectorAll(".subsection-title"));
+            if (subtitles.length) {
+              const subWrap = document.createElement("div");
+              subWrap.className = "nav-sublinks";
+
+              subtitles.forEach((subtitleNode, subIndex) => {
+                const subtitleText = subtitleNode.textContent?.trim();
+                if (!subtitleText) return;
+
+                const subtitleId = `${sectionId}-sub-${subIndex + 1}-${slugify(
+                  subtitleText
+                )}`;
+                subtitleNode.id = subtitleId;
+
+                const subLink = document.createElement("a");
+                subLink.href = `#${subtitleId}`;
+                subLink.className = "nav-sublink";
+                subLink.dataset.tocLink = subtitleId;
+                subLink.innerHTML = `<span>${subtitleText}</span><span>&#8250;</span>`;
+                subWrap.appendChild(subLink);
+
+                trackedItems.push({
+                  id: subtitleId,
+                  element: subtitleNode,
+                  level: "subsection",
+                  parentId: sectionId,
+                });
+              });
+
+              if (subWrap.childElementCount) {
+                group.appendChild(subWrap);
+              }
+            }
+
+            toc.appendChild(group);
+          });
+
+          function updateActiveSection() {
+            if (!trackedItems.length) return;
+            const viewportCenter = window.innerHeight / 2;
+            let activeItem = trackedItems[0];
+            let bestDistance = Infinity;
+
+            trackedItems.forEach((item) => {
+              const rect = item.element.getBoundingClientRect();
+              const center = rect.top + rect.height / 2;
+              const distance = Math.abs(center - viewportCenter);
+              if (distance < bestDistance) {
+                bestDistance = distance;
+                activeItem = item;
+              }
+            });
+
+            const activeMainId =
+              activeItem.level === "subsection" ? activeItem.parentId : activeItem.id;
+            const links = toc.querySelectorAll("[data-toc-link]");
+            links.forEach((link) => {
+              const isMain = link.classList.contains("nav-link");
+              const isSub = link.classList.contains("nav-sublink");
+              link.classList.toggle(
+                "active",
+                (isMain && link.dataset.tocLink === activeMainId) ||
+                  (isSub && link.dataset.tocLink === activeItem.id)
+              );
+            });
+          }
+
+          toc.addEventListener("click", (event) => {
+            const link = event.target.closest("[data-toc-link]");
+            if (!link) return;
+            event.preventDefault();
+
+            const target = document.getElementById(link.dataset.tocLink);
+            if (!target) return;
+            const rect = target.getBoundingClientRect();
+            const top = window.scrollY + rect.top - window.innerHeight / 2 + rect.height / 2;
+            window.scrollTo({
+              top: Math.max(0, top),
+              behavior: "smooth",
+            });
+          });
+
+          updateActiveSection();
+          window.addEventListener("scroll", updateActiveSection, { passive: true });
+          window.addEventListener("resize", updateActiveSection);
+        }
+
+        function renderReviewArticle() {
+          if (!article) {
+            showEmptyReviewState();
+            return;
+          }
+          renderer.renderArticleInto(root, article);
+          buildToc();
+          setChip(WORKFLOW.IN_REVIEW);
+          if (statusMessage) {
+            statusMessage.textContent =
+              "Esta version esta en revision. Si todo esta correcto, publica desde aqui.";
+          }
+          if (publishBtn) publishBtn.disabled = false;
+        }
+
+        returnBtn?.addEventListener("click", () => {
+          if (!article) {
+            window.location.href = "./editor.html";
+            return;
+          }
+          const draftArticle = {
+            ...article,
+            status: WORKFLOW.DRAFT,
+          };
+          renderer.saveArticle(draftArticle);
+          if (typeof renderer.clearReviewArticle === "function") {
+            renderer.clearReviewArticle();
+          }
+          article = null;
+          renderReviewArticle();
+        });
+
+        publishBtn?.addEventListener("click", () => {
+          if (!article) return;
+          article = renderer.publishArticle(article);
+          renderer.saveArticle(article);
+          setChip(WORKFLOW.PUBLISHED);
+          if (statusMessage) {
+            statusMessage.textContent =
+              "Version publicada. Puedes abrir la pagina de publicacion para validar.";
+          }
+          if (publishBtn) publishBtn.disabled = true;
+        });
+
+        renderReviewArticle();
+      });
+    </script>
+  </body>
+</html>

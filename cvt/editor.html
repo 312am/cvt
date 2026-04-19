@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Corvianth Editor Modular</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./styles.css?v=20260419j" />
+  </head>
+  <body>
+    <div class="page page--wide">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="brand">
+            <img
+              class="brand-logo brand-logo-dark"
+              src="./assets/corviant_a3e635_modo_oscuro.svg"
+              alt="Corviant"
+            />
+            <img
+              class="brand-logo brand-logo-light"
+              src="./assets/corviant_a3e635_modo_claro.svg"
+              alt="Corviant"
+            />
+          </div>
+
+          <div class="search-wrap desktop-search">
+            <div class="search">
+              <svg
+                class="icon-sm"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3.5-3.5" />
+              </svg>
+              <input
+                id="articleSlugInput"
+                type="text"
+                value="ultrasonido-hombro-doloroso"
+                aria-label="Slug del articulo"
+              />
+            </div>
+          </div>
+
+          <button class="theme-toggle" id="themeToggle" type="button">
+            <span id="themeLabel">Oscuro</span>
+            <span class="theme-track"><span class="theme-thumb"></span></span>
+          </button>
+        </div>
+      </header>
+
+      <main class="studio-doc-layout">
+        <aside class="studio-toc-column">
+          <section class="module">
+            <div class="module-head">
+              <svg class="icon-sm" viewBox="0 0 50 50" fill="#a3e635" aria-hidden="true">
+                <path d="M30.71,0C20.06,0,11.43,8.8,11.43,19.65c0,3.81,1.06,7.36,2.9,10.36L.58,44.02c-.77.79-.77,2.06,0,2.85l2.49,2.53c.77.8,2.02.8,2.8,0l13.56-13.82c3.17,2.34,7.07,3.72,11.28,3.72,10.65,0,19.29-8.8,19.29-19.65S41.37,0,30.71,0ZM30.71,32.2c-2.28,0-4.42-.63-6.25-1.74-2.2-1.31-3.95-3.31-4.99-5.68-.69-1.56-1.07-3.3-1.07-5.12,0-6.93,5.51-12.56,12.31-12.56,1.79,0,3.49.39,5.02,1.1,2.34,1.06,4.29,2.85,5.59,5.09,1.08,1.86,1.7,4.04,1.7,6.37,0,6.92-5.51,12.55-12.31,12.55Z"/>
+              </svg>
+              Navegacion
+            </div>
+            <div class="module-body nav-list" id="editorTocNav"></div>
+          </section>
+        </aside>
+
+        <section class="studio-doc-column">
+          <div class="module">
+            <div class="module-head module-head-between">
+              <span>Documento editable</span>
+              <div class="studio-status-wrap">
+                <span class="studio-status-chip is-draft" id="workflowStatusChip">
+                  Borrador
+                </span>
+                <span class="studio-muted" id="saveStatus">Listo</span>
+              </div>
+            </div>
+            <div class="module-body">
+              <div class="editor-document" id="editorDocumentRoot"></div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="studio-side-column">
+          <div class="sticky stack">
+            <section class="module">
+              <div class="module-head">
+                <svg class="icon-sm" viewBox="0 0 50 50" fill="#a3e635" aria-hidden="true">
+                  <path d="M30.71,0C20.06,0,11.43,8.8,11.43,19.65c0,3.81,1.06,7.36,2.9,10.36L.58,44.02c-.77.79-.77,2.06,0,2.85l2.49,2.53c.77.8,2.02.8,2.8,0l13.56-13.82c3.17,2.34,7.07,3.72,11.28,3.72,10.65,0,19.29-8.8,19.29-19.65S41.37,0,30.71,0ZM30.71,32.2c-2.28,0-4.42-.63-6.25-1.74-2.2-1.31-3.95-3.31-4.99-5.68-.69-1.56-1.07-3.3-1.07-5.12,0-6.93,5.51-12.56,12.31-12.56,1.79,0,3.49.39,5.02,1.1,2.34,1.06,4.29,2.85,5.59,5.09,1.08,1.86,1.7,4.04,1.7,6.37,0,6.92-5.51,12.55-12.31,12.55Z"/>
+                </svg>
+                Acciones
+              </div>
+              <div class="module-body side-actions-list">
+                <button class="hero-btn" id="openMediaLibraryBtn" type="button">
+                  Libreria de medios
+                </button>
+                <button class="hero-btn" id="saveDraftBtn" type="button">
+                  Guardar borrador
+                </button>
+                <button class="hero-btn" id="sendReviewBtn" type="button">
+                  Enviar a revision
+                </button>
+                <button class="hero-btn accent" id="publishArticleBtn" type="button">
+                  Publicar
+                </button>
+                <a class="hero-btn" href="./review.html">Abrir revision</a>
+                <a class="hero-btn" href="./article.html" target="_blank">Abrir publicacion</a>
+              </div>
+            </section>
+          </div>
+        </aside>
+      </main>
+    </div>
+
+    <script defer src="./modules/hero.js"></script>
+    <script defer src="./modules/patient.js"></script>
+    <script defer src="./modules/text.js?v=20260418k"></script>
+    <script defer src="./modules/text-only.js?v=20260418k"></script>
+    <script defer src="./modules/subtitle.js?v=20260418k"></script>
+    <script defer src="./modules/key-point.js"></script>
+    <script defer src="./modules/pitfalls.js"></script>
+    <script defer src="./modules/bibliography.js?v=20260419a"></script>
+    <script defer src="./modules/viewer.js?v=20260419e"></script>
+    <script defer src="./module-registry.js"></script>
+    <script defer src="./renderer.js?v=20260419a"></script>
+    <script defer src="./theme-switch.js"></script>
+    <script defer src="./media-library.js?v=20260419b"></script>
+    <script defer src="./editor-shell.js?v=20260419a"></script>
+    <script defer src="./text-format-toolbar.js"></script>
+    <script defer src="./site-footer.js?v=20260419b"></script>
+  </body>
+</html>

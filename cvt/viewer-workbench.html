@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Corvianth Viewer Workbench</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css?v=20260419j" />
+  </head>
+  <body>
+    <div class="page page--wide">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="brand">
+            <img
+              class="brand-logo brand-logo-dark"
+              src="./assets/corviant_a3e635_modo_oscuro.svg"
+              alt="Corviant"
+            />
+            <img
+              class="brand-logo brand-logo-light"
+              src="./assets/corviant_a3e635_modo_claro.svg"
+              alt="Corviant"
+            />
+          </div>
+
+          <button class="theme-toggle" id="themeToggle" type="button">
+            <span id="themeLabel">Oscuro</span>
+            <span class="theme-track"><span class="theme-thumb"></span></span>
+          </button>
+
+          <div class="studio-actions">
+            <button class="hero-btn" id="openMediaLibraryBtn" type="button">
+              Libreria de medios
+            </button>
+            <a class="hero-btn" href="./editor.html">Volver al editor</a>
+            <a class="hero-btn" href="./article.html" target="_blank">Abrir publicacion</a>
+          </div>
+        </div>
+      </header>
+
+      <main class="studio-doc-layout viewer-workbench-layout">
+        <section class="studio-doc-column">
+          <section class="module">
+            <div class="module-head module-head-between">
+              <span>Visor unificado</span>
+              <span class="studio-muted">Edicion + preview</span>
+            </div>
+            <div class="module-body viewer-workbench-stack">
+              <div class="viewer-workbench-panels">
+                <div class="studio-subcard">
+                  <div class="module-head-label">Editor del modulo</div>
+                  <div id="viewerEditorRoot"></div>
+                </div>
+                <div class="studio-subcard">
+                  <div class="module-head-label">Preview del modulo</div>
+                  <div id="viewerDisplayRoot"></div>
+                </div>
+              </div>
+              <details class="viewer-edit-panel">
+                <summary>Estado JSON (visor)</summary>
+                <pre class="viewer-workbench-json" id="viewerJson"></pre>
+              </details>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script defer src="./modules/viewer.js?v=20260419e"></script>
+    <script defer src="./module-registry.js"></script>
+    <script defer src="./theme-switch.js"></script>
+    <script defer src="./media-library.js?v=20260419b"></script>
+    <script defer src="./viewer-workbench.js"></script>
+    <script defer src="./site-footer.js?v=20260419b"></script>
+  </body>
+</html>

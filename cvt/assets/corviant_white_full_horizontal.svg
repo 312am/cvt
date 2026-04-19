@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Capa_1" data-name="Capa 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 273 57.31">
+  <defs>
+    <style>
+      .cls-1 {
+        letter-spacing: 0em;
+      }
+
+      .cls-2 {
+        letter-spacing: 0em;
+      }
+
+      .cls-3 {
+        letter-spacing: 0em;
+      }
+
+      .cls-4 {
+        letter-spacing: 0em;
+      }
+
+      .cls-5 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-6 {
+        font-family: Geist-SemiBold, Geist;
+        font-size: 41.06px;
+        font-variation-settings: 'wght' 600;
+        font-weight: 600;
+      }
+
+      .cls-6, .cls-7, .cls-8 {
+        fill: #fbfbfa;
+      }
+
+      .cls-9 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-10 {
+        letter-spacing: 0em;
+      }
+
+      .cls-11 {
+        letter-spacing: 0em;
+      }
+
+      .cls-12 {
+        letter-spacing: .01em;
+      }
+
+      .cls-13 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-14 {
+        letter-spacing: -.01em;
+      }
+
+      .cls-8 {
+        font-family: Geist-Light, Geist;
+        font-size: 14.95px;
+        font-variation-settings: 'wght' 300;
+        font-weight: 300;
+      }
+
+      .cls-15 {
+        letter-spacing: -.03em;
+      }
+
+      .cls-16 {
+        letter-spacing: -.04em;
+      }
+
+      .cls-17 {
+        letter-spacing: 0em;
+      }
+
+      .cls-18 {
+        letter-spacing: -.02em;
+      }
+    </style>
+  </defs>
+  <path class="cls-7" d="M53.94,6.73l-1.95,4.3c-.15.34-.43.62-.77.77l-4.3,1.95c-1.53.69-1.53,2.85,0,3.54l4.3,1.95c.34.15.61.43.77.77l1.95,4.3c.69,1.52,2.85,1.52,3.54,0l1.95-4.3c.16-.34.43-.62.77-.77l4.3-1.95c1.52-.69,1.52-2.85,0-3.54l-4.3-1.95c-.34-.15-.61-.43-.77-.77l-1.95-4.3c-.69-1.52-2.85-1.52-3.54,0Z"/>
+  <text class="cls-6" transform="translate(71.7 35.11) scale(1.24 1)"><tspan class="cls-4" x="0" y="0">co</tspan><tspan class="cls-13" x="47.75" y="0">r</tspan><tspan class="cls-14" x="63.6" y="0">vi</tspan><tspan class="cls-10" x="97.81" y="0">a</tspan><tspan class="cls-16" x="121.54" y="0">n</tspan><tspan x="144.7" y="0">t</tspan></text>
+  <text class="cls-8" transform="translate(73.28 53.72) scale(1.24 1)"><tspan class="cls-18" x="0" y="0">d</tspan><tspan class="cls-11" x="8.52" y="0">i</tspan><tspan class="cls-2" x="11.81" y="0">a</tspan><tspan x="19.91" y="0">g</tspan><tspan class="cls-5" x="28.67" y="0">n</tspan><tspan class="cls-9" x="37.06" y="0">ó</tspan><tspan class="cls-15" x="45.36" y="0">s</tspan><tspan class="cls-3" x="52.63" y="0">t</tspan><tspan class="cls-9" x="58.2" y="0">ic</tspan><tspan x="69.42" y="0">o </tspan><tspan class="cls-9" x="81.6" y="0">po</tspan><tspan x="98.52" y="0">r </tspan><tspan class="cls-12" x="107.75" y="0">i</tspan><tspan class="cls-9" x="111.32" y="0">m</tspan><tspan class="cls-1" x="124.13" y="0">á</tspan><tspan class="cls-9" x="132.24" y="0">ge</tspan><tspan class="cls-17" x="149.03" y="0">n</tspan></text>
+  <path class="cls-7" d="M39.61,19.13v-7.23c0-.71-.58-1.29-1.29-1.29H1.29c-.71,0-1.29.58-1.29,1.29v40.53c0,.71.58,1.29,1.29,1.29h58.04c.71,0,1.29-.58,1.29-1.29v-19.51c0-.71-.58-1.29-1.29-1.29h-7.23c-.71,0-1.29.58-1.29,1.29v9.69c0,.71-.58,1.29-1.29,1.29H11.11c-.71,0-1.29-.58-1.29-1.29v-20.89c0-.71.58-1.29,1.29-1.29h27.21c.71,0,1.29-.58,1.29-1.29Z"/>
+</svg>

@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Corvianth Modular Article</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="brand">corviant</div>
+
+          <nav class="nav desktop-nav">
+            <button type="button">Escribir</button>
+            <button type="button">
+              Explora
+              <svg
+                class="icon-sm"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+            </button>
+          </nav>
+
+          <div class="search-wrap desktop-search">
+            <div class="search">
+              <svg
+                class="icon-sm"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3.5-3.5" />
+              </svg>
+              <input
+                value="Buscar gu&iacute;as, patolog&iacute;as, etiquetas..."
+                readonly
+              />
+            </div>
+          </div>
+
+          <button
+            class="mobile-icon-btn"
+            id="mobileSearchBtn"
+            type="button"
+            aria-label="Buscar"
+          >
+            <svg
+              class="icon-sm"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle cx="11" cy="11" r="7" />
+              <path d="M20 20l-3.5-3.5" />
+            </svg>
+          </button>
+
+          <button class="theme-toggle desktop-theme" id="themeToggle" type="button">
+            <span id="themeLabel">Oscuro</span>
+            <span class="theme-track"><span class="theme-thumb"></span></span>
+          </button>
+
+          <div class="avatar desktop-avatar"></div>
+
+          <div class="mobile-menu-wrap">
+            <button
+              class="mobile-icon-btn"
+              id="mobileMenuBtn"
+              type="button"
+              aria-expanded="false"
+              aria-label="Abrir men&uacute;"
+            >
+              <svg
+                class="icon-sm"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path d="M3 6h18M3 12h18M3 18h18" />
+              </svg>
+            </button>
+
+            <div class="mobile-menu" id="mobileMenu">
+              <button class="mobile-menu-item" type="button">Escribir</button>
+              <button class="mobile-menu-item" type="button">Explora</button>
+              <button
+                class="mobile-menu-item mobile-theme-item"
+                id="mobileThemeBtn"
+                type="button"
+              >
+                <span id="mobileThemeLabel">Modo oscuro</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="layout">
+        <aside class="sidebar">
+          <div class="sticky stack">
+            <section class="module">
+              <div class="module-head">
+                <svg
+                  class="icon-sm"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#a3e635"
+                  stroke-width="2"
+                >
+                  <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" />
+                </svg>
+                Navegaci&oacute;n
+              </div>
+              <div class="module-body nav-list" id="tocNav"></div>
+            </section>
+          </div>
+        </aside>
+
+        <main class="main">
+          <section class="hero">
+            <div class="eyebrow">Gu&iacute;as / Ultrasonido musculoesquel&eacute;tico</div>
+            <div class="hero-grid hero-grid-single">
+              <div>
+                <h1 id="articleTitle">Ultrasonido musculoesquel&eacute;tico</h1>
+                <p class="hero-sub" id="articleSubtitle">
+                  <span id="entryPrefix">Por</span>
+                  <a href="#" class="author-link" id="articleAuthorLink">Corvianth</a>
+                </p>
+                <div class="meta">
+                  <span class="meta-date" id="articleDate">25 de abril de 2025</span>
+                  <span class="tag" id="tagOne">Musculoesquel&eacute;tico</span>
+                  <span class="tag" id="tagTwo">B&aacute;sico</span>
+                  <span class="tag" id="tagThree">Entrada modular</span>
+                </div>
+              </div>
+
+              <div class="hero-actions">
+                <button class="hero-btn" id="heroFavoriteBtn" type="button">
+                  &#9734; Guardar
+                </button>
+                <button class="hero-btn" id="shareBtn" type="button">Compartir</button>
+                <button class="hero-btn" id="reportBtn" type="button">Reportar</button>
+              </div>
+            </div>
+          </section>
+
+          <section class="module module--accent module-spacing-bottom">
+            <div class="module-head">
+              <svg
+                class="icon-sm"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#a3e635"
+                stroke-width="2"
+              >
+                <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" />
+              </svg>
+              Presentaci&oacute;n del paciente
+            </div>
+            <div class="module-body">
+              <div class="patient-card">
+                <div class="patient-summary">
+                  <span id="patientSummaryText">
+                    Paciente masculino de 42 a&ntilde;os con dolor de hombro derecho de 3
+                    semanas de evoluci&oacute;n, sin antecedente traum&aacute;tico claro, enviado
+                    para valoraci&oacute;n por ultrasonido musculoesquel&eacute;tico.
+                  </span>
+                </div>
+                <div class="patient-meta-grid">
+                  <div class="patient-meta-item">
+                    <div class="patient-meta-label">Edad</div>
+                    <div class="patient-meta-value" id="patientAge">42 a&ntilde;os</div>
+                  </div>
+                  <div class="patient-meta-item">
+                    <div class="patient-meta-label">Sexo</div>
+                    <div class="patient-meta-value" id="patientSex">Masculino</div>
+                  </div>
+                  <div class="patient-meta-item">
+                    <div class="patient-meta-label">Motivo</div>
+                    <div class="patient-meta-value" id="patientReason">
+                      Dolor de hombro
+                    </div>
+                  </div>
+                  <div class="patient-meta-item">
+                    <div class="patient-meta-label">Lado</div>
+                    <div class="patient-meta-value" id="patientSide">Derecho</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="module viewer-full-bleed-mobile">
+            <div class="module-head">
+              <svg
+                class="icon-sm"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="#a3e635"
+                stroke-width="2"
+              >
+                <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" />
+              </svg>
+              Visor principal
+            </div>
+            <div class="module-body">
+              <div class="viewer">
+                <div class="viewer-stage tone-1" id="viewerStage">
+                  <div class="viewer-glow"></div>
+                  <div class="viewer-grid"></div>
+                  <div class="viewer-label">M&oacute;dulo visual</div>
+                  <div class="viewer-meta" id="viewerMeta">
+                    US &middot; Longitudinal &middot; Supraespinoso
+                  </div>
+                  <div class="viewer-icon">&nearr;</div>
+                  <div class="viewer-counter">
+                    <span id="viewerCounter">1/4</span><span>&bull;&bull;&bull;</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="studies-row">
+                <button
+                  class="studies-arrow"
+                  id="studiesPrevBtn"
+                  type="button"
+                  aria-label="Anterior"
+                >
+                  &lsaquo;
+                </button>
+                <div class="studies-viewport">
+                  <div class="studies-track" id="studiesTrack"></div>
+                </div>
+                <button
+                  class="studies-arrow"
+                  id="studiesNextBtn"
+                  type="button"
+                  aria-label="Siguiente"
+                >
+                  &rsaquo;
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <div class="section-stack">
+            <section class="module" data-toc-title="Introducci&oacute;n">
+              <div class="module-head">
+                <svg
+                  class="icon-sm"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#a3e635"
+                  stroke-width="2"
+                >
+                  <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" />
+                </svg>
+                Introducci&oacute;n
+              </div>
+              <div class="module-body content-stack">
+                <div class="subsection-block" data-toc-subtitle="Contexto cl&iacute;nico">
+                  <h3 class="subsection-title">Contexto cl&iacute;nico</h3>
+                  <p class="text-block">
+                    El ultrasonido musculoesquel&eacute;tico permite correlacionar s&iacute;ntomas,
+                    maniobras f&iacute;sicas y hallazgos din&aacute;micos en tiempo real. En hombro
+                    doloroso es &uacute;til para valorar manguito rotador, bursas, tend&oacute;n del
+                    b&iacute;ceps y articulaci&oacute;n acromioclavicular sin depender de radiaci&oacute;n
+                    ionizante.
+                  </p>
+                </div>
+                <div class="subsection-block" data-toc-subtitle="Objetivo del estudio">
+                  <h3 class="subsection-title">Objetivo del estudio</h3>
+                  <p class="text-block">
+                    Esta entrada demo muestra una exploraci&oacute;n b&aacute;sica de hombro, revisa
+                    hallazgos frecuentes y ordena la discusi&oacute;n por bloques cl&iacute;nicos
+                    reutilizables.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section class="split-grid" data-toc-title="Fundamentos">
+              <article class="module">
+                <div class="module-head">
+                  <svg
+                    class="icon-sm"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#a3e635"
+                    stroke-width="2"
+                  >
+                    <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" />
+                  </svg>
+                  Fundamentos de la ac&uacute;stica
+                </div>
+                <div class="module-body content-stack">
+                  <div class="subsection-block" data-toc-subtitle="Frecuencia y resoluci&oacute;n">
+                    <h3 class="subsection-title">Frecuencia y resoluci&oacute;n</h3>
+                    <p class="text-block">
+                      Los transductores lineales de alta frecuencia mejoran la
+                      resoluci&oacute;n espacial en estructuras superficiales, pero reducen
+                      penetraci&oacute;n. En hombro esto favorece la evaluaci&oacute;n del
+                      supraespinoso y de la bursa subacromial-subdeltoidea.
+                    </p>
+                  </div>
+                  <div class="subsection-block" data-toc-subtitle="Anisotrop&iacute;a">
+                    <h3 class="subsection-title">Anisotrop&iacute;a</h3>
+                    <p class="text-block">
+                      La p&eacute;rdida artificial de ecogenicidad por mala orientaci&oacute;n del
+                      haz es uno de los artefactos m&aacute;s importantes en tendones. Antes
+                      de asumir desgarro debe corregirse el &aacute;ngulo del transductor.
+                    </p>
+                  </div>
+                  <div class="subsection-block" data-toc-subtitle="Planos de exploraci&oacute;n">
+                    <h3 class="subsection-title">Planos de exploraci&oacute;n</h3>
+                    <p class="text-block">
+                      La exploraci&oacute;n debe ser longitudinal y transversal, a&ntilde;adiendo
+                      maniobras din&aacute;micas cuando sea necesario. Un solo plano rara vez
+                      basta para concluir lesi&oacute;n estructural.
+                    </p>
+                  </div>
+                </div>
+              </article>
+            </section>
+
+            <section class="quote-box" data-toc-title="Punto clave">
+              <div class="quote-head">&#10022; Bloque destacado</div>
+              <blockquote>
+                &ldquo;Antes de etiquetar rotura, corrige el &aacute;ngulo, revisa el plano opuesto
+                y correlaciona con la zona exacta de dolor.&rdquo;
+              </blockquote>
+              <div class="quote-foot">&mdash; Regla operativa para hombro doloroso</div>
+            </section>
+
+            <section class="module" data-toc-title="Hallazgos">
+              <div class="module-head">
+                <svg
+                  class="icon-sm"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#a3e635"
+                  stroke-width="2"
+                >
+                  <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" />
+                </svg>
+                Hallazgos
+              </div>
+              <div class="module-body content-stack">
+                <div class="subsection-block" data-toc-subtitle="Tend&oacute;n supraespinoso">
+                  <h3 class="subsection-title">Tend&oacute;n supraespinoso</h3>
+                  <p class="text-block">
+                    Se identifica engrosamiento leve con ecotextura heterog&eacute;nea y
+                    peque&ntilde;a zona hipoecoica focal en la cara bursal, sin retracci&oacute;n ni
+                    defecto transfixiante. El patr&oacute;n sugiere tendinopat&iacute;a con rotura
+                    parcial superficial peque&ntilde;a.
+                  </p>
+                </div>
+                <div
+                  class="subsection-block"
+                  data-toc-subtitle="Bursa subacromial-subdeltoidea"
+                >
+                  <h3 class="subsection-title">Bursa subacromial-subdeltoidea</h3>
+                  <p class="text-block">
+                    Se observa discreto aumento de l&iacute;quido y engrosamiento sinovial
+                    leve. No hay colecci&oacute;n compleja ni distensi&oacute;n importante. El
+                    hallazgo apoya bursitis reactiva de bajo volumen.
+                  </p>
+                </div>
+                <div class="subsection-block" data-toc-subtitle="Tend&oacute;n del b&iacute;ceps">
+                  <h3 class="subsection-title">Tend&oacute;n del b&iacute;ceps</h3>
+                  <p class="text-block">
+                    El tend&oacute;n conserva trayecto y grosor, sin luxaci&oacute;n ni l&iacute;quido
+                    peritendinoso significativo. No se documentan datos que sugieran
+                    tenosinovitis relevante en este ejemplo.
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <section
+              class="module viewer-full-bleed-mobile"
+              data-toc-title="Figura editorial vinculada"
+            >
+              <div class="module-head">
+                <svg
+                  class="icon-sm"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#a3e635"
+                  stroke-width="2"
+                >
+                  <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" />
+                </svg>
+                Figura editorial con texto vinculado
+              </div>
+              <div class="module-body">
+                <div class="viewer">
+                  <div class="viewer-stage tone-3" id="editorialViewerStage">
+                    <div class="viewer-glow"></div>
+                    <div class="viewer-grid"></div>
+                    <div class="annotation-layer" id="editorialAnnotationLayer"></div>
+                    <div class="viewer-label">Figura editorial</div>
+                    <div class="viewer-meta" id="editorialViewerMeta">
+                      X-RAY &middot; Lateral &middot; Rodilla derecha
+                    </div>
+                    <div class="viewer-icon">&nearr;</div>
+                    <div class="viewer-counter">
+                      <span id="editorialViewerCounter">1/1</span><span>&bull;&bull;&bull;</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="studies-row">
+                  <button
+                    class="studies-arrow"
+                    id="editorialStudiesPrevBtn"
+                    type="button"
+                    aria-label="Anterior"
+                  >
+                    &lsaquo;
+                  </button>
+                  <div class="studies-viewport">
+                    <div class="studies-track" id="editorialStudiesTrack"></div>
+                  </div>
+                  <button
+                    class="studies-arrow"
+                    id="editorialStudiesNextBtn"
+                    type="button"
+                    aria-label="Siguiente"
+                  >
+                    &rsaquo;
+                  </button>
+                </div>
+
+                <div class="viewer-caption">
+                  <div class="viewer-caption-label">Descripci&oacute;n de la figura</div>
+                  <div class="viewer-caption-text" id="editorialViewerCaption"></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="module" data-toc-title="Editor de texto">
+              <div class="module-head">
+                <svg
+                  class="icon-sm"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#a3e635"
+                  stroke-width="2"
+                >
+                  <path d="M4 20h4l10.5-10.5a2.12 2.12 0 1 0-3-3L5.5 17v3z" />
+                  <path d="M13.5 6.5l3 3" />
+                </svg>
+                Editor de texto
+              </div>
+              <div class="module-body editor-panel">
+                <div class="editor-toolbar">
+                  <button class="hero-btn accent" id="editorApplyBtn" type="button">
+                    Aplicar al visor
+                  </button>
+                  <button class="hero-btn" id="editorResetBtn" type="button">
+                    Restaurar
+                  </button>
+                </div>
+                <div class="editor-status" id="editorStatus">
+                  Edita los bloques del autor. Mantén
+                  <code>&lt;span class="hl"&gt;...&lt;/span&gt;</code> para conservar el
+                  resaltado verde.
+                </div>
+                <div class="editor-list" id="editorNotesList"></div>
+              </div>
+            </section>
+
+            <section class="module module--warning" data-toc-title="Pitfalls">
+              <div class="module-head">
+                <svg
+                  class="icon-sm"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="var(--warning-accent)"
+                  stroke-width="2"
+                >
+                  <path d="M12 9v4M12 17h.01" />
+                  <path
+                    d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+                  />
+                </svg>
+                Pitfalls
+              </div>
+              <div class="module-body content-stack">
+                <div class="subsection-block" data-toc-subtitle="Errores t&eacute;cnicos">
+                  <h3 class="subsection-title">Errores t&eacute;cnicos</h3>
+                  <div class="warning-box">
+                    <h3 class="warning-title">
+                      Errores frecuentes de interpretaci&oacute;n
+                    </h3>
+                    <ul class="warning-list">
+                      <li>Confundir anisotrop&iacute;a con patolog&iacute;a tendinosa real.</li>
+                      <li>
+                        Sobreinterpretar cambios sutiles sin correlaci&oacute;n cl&iacute;nica.
+                      </li>
+                      <li>
+                        No reajustar el plano ni la presi&oacute;n del transductor antes de
+                        concluir lesi&oacute;n.
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="subsection-block" data-toc-subtitle="Checklist previo">
+                  <h3 class="subsection-title">Checklist previo</h3>
+                  <div class="note-inline">
+                    Antes de concluir lesi&oacute;n: repetir corte en ambos planos, revisar
+                    maniobra din&aacute;mica, identificar el punto doloroso y valorar si la
+                    alteraci&oacute;n desaparece al corregir el &aacute;ngulo.
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="module" data-toc-title="Recomendaciones">
+              <div class="module-head">
+                <svg
+                  class="icon-sm"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#a3e635"
+                  stroke-width="2"
+                >
+                  <path d="M3 3h7v7H3zM14 3h7v7h-7zM14 14h7v7h-7zM3 14h7v7H3z" />
+                </svg>
+                Recomendaciones
+              </div>
+              <div class="module-body card-grid">
+                <article class="card">
+                  <div class="card-title">Explora con secuencia fija</div>
+                  <div class="card-copy">
+                    Repite el mismo orden anat&oacute;mico en cada paciente para disminuir
+                    omisiones.
+                  </div>
+                </article>
+                <article class="card">
+                  <div class="card-title">Documenta dos planos</div>
+                  <div class="card-copy">
+                    Todo hallazgo relevante debe registrarse en al menos dos
+                    proyecciones ortogonales.
+                  </div>
+                </article>
+                <article class="card">
+                  <div class="card-title">Correlaci&oacute;n cl&iacute;nica</div>
+                  <div class="card-copy">
+                    Un hallazgo leve sin correlaci&oacute;n con dolor o limitaci&oacute;n puede no
+                    ser la causa principal.
+                  </div>
+                </article>
+                <article class="card">
+                  <div class="card-title">Comparaci&oacute;n lateral</div>
+                  <div class="card-copy">
+                    Cuando haya duda, el lado contralateral puede ayudar a interpretar
+                    variaciones sutiles.
+                  </div>
+                </article>
+              </div>
+            </section>
+
+            <section class="module" data-toc-title="Referencias">
+              <div class="module-head module-head-between">
+                <div class="module-head-label">
+                  <svg
+                    class="icon-sm"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#a3e635"
+                    stroke-width="2"
+                  >
+                    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                    <path
+                      d="M6.5 2H20v20H6.5A2.5 2.5 0 0 0 4 24V4.5A2.5 2.5 0 0 1 6.5 2z"
+                    />
+                  </svg>
+                  Referencias bibliogr&aacute;ficas
+                </div>
+                <button
+                  class="collapse-btn"
+                  id="refsToggle"
+                  type="button"
+                  aria-expanded="false"
+                >
+                  Mostrar
+                </button>
+              </div>
+              <div class="module-body is-collapsed" id="refsContent">
+                <ol class="refs-list">
+                  <li>
+                    European Society of Musculoskeletal Radiology. Ultrasound
+                    technical guidelines.
+                  </li>
+                  <li>
+                    AIUM Practice Parameter for the Performance of a Musculoskeletal
+                    Ultrasound Examination.
+                  </li>
+                  <li>Bianchi S, Martinoli C. Ultrasound of the Musculoskeletal System.</li>
+                  <li>Jacobson JA. Fundamentals of Musculoskeletal Ultrasound.</li>
+                </ol>
+              </div>
+            </section>
+
+            <section class="module" data-toc-title="Relacionados">
+              <div class="module-head">
+                <svg
+                  class="icon-sm"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="#a3e635"
+                  stroke-width="2"
+                >
+                  <path d="M8 7h12M8 12h12M8 17h12" />
+                  <path d="M3 7h.01M3 12h.01M3 17h.01" />
+                </svg>
+                Casos relacionados
+              </div>
+              <div class="module-body related-grid">
+                <article class="related-card">
+                  <div class="related-kicker">Caso</div>
+                  <div class="related-title">Rotura parcial del supraespinoso</div>
+                  <div class="related-copy">
+                    Correlaci&oacute;n entre hallazgos din&aacute;micos y dolor en elevaci&oacute;n.
+                  </div>
+                </article>
+                <article class="related-card">
+                  <div class="related-kicker">Gu&iacute;a</div>
+                  <div class="related-title">Hombro doloroso: protocolo b&aacute;sico</div>
+                  <div class="related-copy">
+                    Orden recomendado para una exploraci&oacute;n reproducible.
+                  </div>
+                </article>
+                <article class="related-card">
+                  <div class="related-kicker">Anatom&iacute;a</div>
+                  <div class="related-title">Tendones del manguito rotador</div>
+                  <div class="related-copy">
+                    Referencias anat&oacute;micas &uacute;tiles para no perder orientaci&oacute;n.
+                  </div>
+                </article>
+              </div>
+            </section>
+          </div>
+
+          <div class="pagination">
+            <button class="page-btn" type="button">1</button>
+            <button class="page-btn" type="button">2</button>
+            <button class="page-btn active" type="button">3</button>
+            <button class="page-btn" type="button">4</button>
+          </div>
+        </main>
+
+        <aside class="actions">
+          <div class="sticky">
+            <button class="float-btn" id="scrollTopBtn" type="button">&uarr;</button>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <script src="./viewer.js"></script>
+    <script src="./app.js"></script>
+    <script src="./editor.js"></script>
+    <script src="./site-footer.js?v=20260418p"></script>
+  </body>
+</html>

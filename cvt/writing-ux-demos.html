@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sandbox foco de bloque</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+
+    <style>
+      .focus-demo-document {
+        display: grid;
+        gap: var(--space-4);
+      }
+
+      .focus-demo-module {
+        transition: opacity 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+      }
+
+      .focus-demo-module [contenteditable="true"] {
+        outline: 0;
+      }
+
+      .focus-demo-module h3 {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: var(--w-medium);
+      }
+
+      .focus-demo-module.is-active {
+        border-color: var(--accent-border);
+        box-shadow: 0 0 0 1px var(--accent-border), var(--shadow-panel);
+      }
+
+      .focus-demo-module.is-inactive {
+        opacity: 0.42;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page page--wide">
+      <header class="topbar">
+        <div class="topbar-inner">
+          <div class="brand">
+            <img
+              class="brand-logo brand-logo-dark"
+              src="./assets/corviant_a3e635_modo_oscuro.svg"
+              alt="Corviant"
+            />
+            <img
+              class="brand-logo brand-logo-light"
+              src="./assets/corviant_a3e635_modo_claro.svg"
+              alt="Corviant"
+            />
+          </div>
+
+          <div class="search-wrap desktop-search">
+            <div class="search">
+              <svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="7" />
+                <path d="M20 20l-3.5-3.5" />
+              </svg>
+              <input type="text" value="demo-foco-bloque" aria-label="Slug demo" />
+            </div>
+          </div>
+
+          <button class="theme-toggle" id="themeToggle" type="button">
+            <span id="themeLabel">Oscuro</span>
+            <span class="theme-track"><span class="theme-thumb"></span></span>
+          </button>
+        </div>
+      </header>
+
+      <main class="studio-doc-layout">
+        <aside class="studio-toc-column">
+          <section class="module">
+            <div class="module-head">Navegacion</div>
+            <div class="module-body nav-list">
+              <a class="nav-link active" href="#"><span>Modo foco de bloque</span><span>&#8250;</span></a>
+            </div>
+          </section>
+        </aside>
+
+        <section class="studio-doc-column">
+          <section class="module">
+            <div class="module-head module-head-between">
+              <span>Ejemplo: solo bloque activo/inactivo</span>
+              <span class="studio-muted">Sandbox</span>
+            </div>
+            <div class="module-body">
+              <div class="focus-demo-document" id="focusDemoDocument">
+                <article class="module focus-demo-module" data-block-id="hero">
+                  <div class="module-head">
+                    <h3 contenteditable="true">Hero</h3>
+                  </div>
+                  <div class="module-body" contenteditable="true">
+                    Edita este bloque para activar el foco visual.
+                  </div>
+                </article>
+
+                <article class="module focus-demo-module" data-block-id="introduccion">
+                  <div class="module-head">
+                    <h3 contenteditable="true">Introduccion</h3>
+                  </div>
+                  <div class="module-body" contenteditable="true">
+                    Solo el bloque en edicion debe verse iluminado; los otros se atenúan.
+                  </div>
+                </article>
+
+                <article class="module focus-demo-module" data-block-id="punto-clave">
+                  <div class="module-head">
+                    <h3 contenteditable="true">Punto clave</h3>
+                  </div>
+                  <div class="module-body" contenteditable="true">
+                    Este comportamiento ayuda a leer y escribir con menos ruido visual.
+                  </div>
+                </article>
+              </div>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <script defer src="./theme-switch.js"></script>
+    <script defer src="./site-footer.js?v=20260418p"></script>
+    <script>
+      (function initFocusOnlyDemo() {
+        const root = document.getElementById("focusDemoDocument");
+        if (!root) return;
+
+        const blocks = Array.from(root.querySelectorAll(".focus-demo-module"));
+
+        function setActiveBlock(targetBlock) {
+          blocks.forEach((block) => {
+            const isActive = block === targetBlock;
+            block.classList.toggle("is-active", isActive);
+            block.classList.toggle("is-inactive", !isActive);
+          });
+        }
+
+        blocks.forEach((block) => {
+          block.addEventListener("click", () => setActiveBlock(block));
+
+          const editables = block.querySelectorAll("[contenteditable='true']");
+          editables.forEach((editable) => {
+            editable.addEventListener("focus", () => setActiveBlock(block));
+            editable.addEventListener("input", () => setActiveBlock(block));
+          });
+        });
+
+        setActiveBlock(blocks[1] || blocks[0]);
+      })();
+    </script>
+  </body>
+</html>
