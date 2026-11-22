@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: https: http:; style-src 'self' 'unsafe-inline'; script-src 'self'" />
   <title>Mis Figuras</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22 fill=%22%23ff5c8a%22%3E%E2%97%86%3C/text%3E%3C/svg%3E" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -132,7 +133,24 @@
     <p class="muted small">La copia incluye todas las figuras e imágenes en un archivo .json.</p>
   </dialog>
 
+  <dialog id="confirm" class="confirm">
+    <form method="dialog">
+      <p id="confirm-msg"></p>
+      <div class="modal-actions">
+        <span class="spacer"></span>
+        <button class="btn ghost" value="cancel">Cancelar</button>
+        <button class="btn primary" value="ok" id="confirm-ok">Aceptar</button>
+      </div>
+    </form>
+  </dialog>
+
   <div id="toast" class="toast" hidden></div>
+
+  <div id="parked" class="parked">
+    <div class="big">📌</div>
+    <p>Mis Figuras está abierta en la <b>ventana flotante</b>.</p>
+    <button class="btn primary" id="btn-back">Traerla de vuelta aquí</button>
+  </div>
 
   <script src="app.js"></script>
 </body>

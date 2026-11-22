@@ -1,18 +1,51 @@
 'use strict';
 
 /* ======================================================================
-   Almacenamiento: usa Electron (window.api) si existe; si no, localStorage
-   (así también se puede abrir index.html directamente en un navegador).
+   Almacenamiento: usa Electron (window.api) si existe; si no, IndexedDB del
+   navegador (mucho más espacio que localStorage, necesario por las imágenes).
    ====================================================================== */
 const LS_KEY = 'mis-figuras-v1';
+const idb = {
+  db: null,
+  open() {
+    if (this.db) return this.db;
+    this.db = new Promise((resolve, reject) => {
+      const req = indexedDB.open('mis-figuras', 1);
+      req.onupgradeneeded = () => req.result.createObjectStore('kv');
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+    return this.db;
+  },
+  async run(mode, fn) {
+    const db = await this.open();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('kv', mode);
+      const req = fn(tx.objectStore('kv'));
+      tx.oncomplete = () => resolve(req && req.result);
+      tx.onerror = tx.onabort = () => reject(tx.error);
+    });
+  },
+  get: (k) => idb.run('readonly', (s) => s.get(k)),
+  set: (k, v) => idb.run('readwrite', (s) => s.put(v, k)),
+};
 const store = {
   async load() {
     if (window.api) return window.api.load();
+    try {
+      const data = await idb.get('state');
+      if (data) return data;
+    } catch (e) { console.warn('IndexedDB no disponible', e); }
+    // Migración desde la versión anterior (localStorage)
     try { return JSON.parse(localStorage.getItem(LS_KEY)); } catch { return null; }
   },
   async save(data) {
     if (window.api) return window.api.save(data);
-    try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch (e) { toast('No se pudo guardar: ' + e.message); }
+    try { await idb.set('state', JSON.parse(JSON.stringify(data))); }
+    catch (e) {
+      try { localStorage.setItem(LS_KEY, JSON.stringify(data)); }
+      catch { toast('⚠ No se pudo guardar: ' + (e && e.message)); }
+    }
   },
 };
 
@@ -21,8 +54,18 @@ let tab = 'owned';
 let editingId = null;
 let draftImage = '';
 
-const $ = (s) => document.querySelector(s);
-const $$ = (s) => [...document.querySelectorAll(s)];
+// `doc` cambia cuando la app se mueve a la ventana flotante (Picture-in-Picture)
+let doc = document;
+const $ = (s) => doc.querySelector(s);
+const $$ = (s) => [...doc.querySelectorAll(s)];
+function ask(msg, okText = 'Aceptar') {
+  const dlg = $('#confirm');
+  $('#confirm-msg').textContent = msg;
+  $('#confirm-ok').textContent = okText;
+  dlg.returnValue = '';
+  dlg.showModal();
+  return new Promise((resolve) => dlg.addEventListener('close', () => resolve(dlg.returnValue === 'ok'), { once: true }));
+}
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const num = (v) => { const n = parseFloat(v); return Number.isFinite(n) ? n : 0; };
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -370,9 +413,9 @@ form.addEventListener('submit', (e) => {
 const closeModal = () => $('#modal').close();
 $('#btn-cancel').addEventListener('click', closeModal);
 $('#modal-x').addEventListener('click', closeModal);
-$('#btn-delete').addEventListener('click', () => {
+$('#btn-delete').addEventListener('click', async () => {
   const f = byId(editingId);
-  if (!f || !confirm(`¿Eliminar "${f.name}"?`)) return;
+  if (!f || !(await ask(`¿Eliminar "${f.name}"?`, 'Eliminar'))) return;
   state.figures = state.figures.filter((x) => x.id !== editingId);
   persist(); closeModal(); render();
   toast('Figura eliminada');
@@ -424,14 +467,17 @@ F('imgurl').addEventListener('input', (e) => {
   if (/^https?:\/\/.+/.test(v)) setImage(v);
   else if (!v && /^https?:/.test(draftImage)) setImage('');
 });
-document.addEventListener('paste', (e) => {
-  if (!$('#modal').open) return;
-  const item = [...e.clipboardData.items].find((i) => i.type.startsWith('image/'));
-  if (item) { e.preventDefault(); takeFile(item.getAsFile()); }
-});
-// Evita que soltar una imagen fuera de la zona abra el archivo en la ventana
-window.addEventListener('dragover', (e) => e.preventDefault());
-window.addEventListener('drop', (e) => e.preventDefault());
+function wireDocument(d) {
+  d.addEventListener('paste', (e) => {
+    if (!$('#modal').open) return;
+    const item = [...e.clipboardData.items].find((i) => i.type.startsWith('image/'));
+    if (item) { e.preventDefault(); takeFile(item.getAsFile()); }
+  });
+  // Evita que soltar una imagen fuera de la zona abra el archivo en la ventana
+  d.addEventListener('dragover', (e) => e.preventDefault());
+  d.addEventListener('drop', (e) => e.preventDefault());
+}
+wireDocument(document);
 
 /* ======================================================================
    Ventana: siempre encima, minimizar, cerrar, opacidad
@@ -439,8 +485,9 @@ window.addEventListener('drop', (e) => e.preventDefault());
 async function initWindow() {
   const pin = $('#btn-pin');
   if (!window.api) {
-    // En navegador no existen estos controles
-    ['#btn-pin', '#btn-min', '#btn-close', '#w-opacity'].forEach((s) => ($(s).hidden = true));
+    // En navegador: sin minimizar/cerrar/opacidad; el 📌 abre la ventana flotante
+    ['#btn-min', '#btn-close', '#w-opacity'].forEach((s) => ($(s).hidden = true));
+    initFloating(pin);
     return;
   }
   const setPinUI = (on) => {
@@ -462,6 +509,53 @@ async function initWindow() {
   $('#s-opacity').addEventListener('input', (e) => {
     $('#s-op-val').textContent = e.target.value + '%';
     window.api.setOpacity(e.target.value / 100);
+  });
+}
+
+/* ---------- Navegador: ventana flotante siempre encima (Chrome/Edge) ---------- */
+let pipWin = null;
+function initFloating(pin) {
+  pin.title = 'Abrir en ventana flotante (siempre encima)';
+  pin.addEventListener('click', () => {
+    if (pipWin) return pipWin.close();
+    if (!('documentPictureInPicture' in window)) {
+      toast('La ventana flotante solo funciona en Chrome o Edge');
+      return;
+    }
+    openFloating().catch((e) => toast('No se pudo abrir: ' + e.message));
+  });
+  $('#btn-back').addEventListener('click', () => pipWin && pipWin.close());
+}
+
+async function openFloating() {
+  const pip = await documentPictureInPicture.requestWindow({ width: 420, height: 680 });
+  pipWin = pip;
+  // Copiar estilos
+  for (const sheet of document.styleSheets) {
+    const style = pip.document.createElement('style');
+    style.textContent = [...sheet.cssRules].map((r) => r.cssText).join('\n');
+    pip.document.head.append(style);
+  }
+  pip.document.title = 'Mis Figuras';
+  pip.document.documentElement.lang = 'es';
+  wireDocument(pip.document);
+
+  const app = [...document.body.children].filter((el) => el.id !== 'parked' && el.tagName !== 'SCRIPT');
+  app.forEach((el) => pip.document.body.append(el));
+  doc = pip.document;
+  document.body.classList.add('is-parked');
+  $('#btn-pin').classList.add('on');
+  $('#btn-pin').title = 'Volver a la pestaña';
+
+  pip.addEventListener('pagehide', () => {
+    [...pip.document.querySelectorAll('dialog[open]')].forEach((d) => d.close());
+    const parked = document.getElementById('parked');
+    app.forEach((el) => document.body.insertBefore(el, parked));
+    doc = document;
+    pipWin = null;
+    document.body.classList.remove('is-parked');
+    $('#btn-pin').classList.remove('on');
+    $('#btn-pin').title = 'Abrir en ventana flotante (siempre encima)';
   });
 }
 
@@ -490,7 +584,7 @@ $('#import-file').addEventListener('change', async (e) => {
   try {
     const data = JSON.parse(await file.text());
     if (!Array.isArray(data.figures)) throw new Error('formato');
-    if (!confirm(`Se importarán ${data.figures.length} figuras y se reemplazarán las actuales. ¿Continuar?`)) return;
+    if (!(await ask(`Se importarán ${data.figures.length} figuras y se reemplazarán las actuales. ¿Continuar?`, 'Importar'))) return;
     state = { figures: data.figures, settings: { currency: 'MXN', ...data.settings } };
     persist(); render();
     $('#settings').close();

@@ -389,3 +389,22 @@ dialog::backdrop { background: rgba(0,0,0,.6); }
   white-space: nowrap;
 }
 .toast[hidden] { display: none; }
+
+/* ---------- Navegador: pantalla ancha y ventana flotante ---------- */
+.tabs, .toolbar, main { width: 100%; max-width: 1100px; margin-inline: auto; }
+.parked { display: none; }
+body.is-parked .parked {
+  display: grid;
+  place-content: center;
+  text-align: center;
+  height: 100%;
+  color: var(--muted);
+  gap: 6px;
+}
+.parked .big { font-size: 48px; }
+.confirm { width: min(340px, calc(100vw - 20px)); }
+.confirm p { margin: 4px 0 6px; }
+[hidden] { display: none !important; }
+@media (min-width: 800px) {
+  .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+}
