@@ -28,7 +28,121 @@ const idb = {
   },
   get: (k) => idb.run('readonly', (s) => s.get(k)),
   set: (k, v) => idb.run('readwrite', (s) => s.put(v, k)),
+  del: (k) => idb.run('readwrite', (s) => s.delete(k)),
 };
+
+/* ======================================================================
+   Carpeta (Google Drive para escritorio u otra): los datos y las imágenes
+   viven en una carpeta elegida por ti. En el navegador solo se recuerda
+   CUÁL es la carpeta, nunca las imágenes.
+     <carpeta>/mis-figuras.json
+     <carpeta>/imagenes/<archivo>.jpg
+   En el JSON, una imagen guardada en la carpeta se escribe como "img:<archivo>".
+   ====================================================================== */
+const DATA_FILE = 'mis-figuras.json';
+const IMG_DIR = 'imagenes';
+const folder = {
+  handle: null,          // FileSystemDirectoryHandle
+  imgDir: null,
+  cache: new Map(),      // nombre de archivo -> blob: URL (solo en memoria)
+  lastSeen: 0,           // lastModified del JSON que conocemos
+  queue: Promise.resolve(),
+  failed: false,
+  supported: () => !window.api && 'showDirectoryPicker' in window,
+  async permission(h, request) {
+    const o = { mode: 'readwrite' };
+    if ((await h.queryPermission(o)) === 'granted') return true;
+    if (!request) return false;
+    return (await h.requestPermission(o)) === 'granted';
+  },
+  // Lanza error si la carpeta no está disponible (p. ej. Google Drive cerrado)
+  async open(h) {
+    this.imgDir = await h.getDirectoryHandle(IMG_DIR, { create: true });
+    this.handle = h;
+  },
+  async readData() {
+    try {
+      const file = await (await this.handle.getFileHandle(DATA_FILE)).getFile();
+      this.lastSeen = file.lastModified;
+      return JSON.parse(await file.text());
+    } catch (e) {
+      if (e.name === 'NotFoundError') return null;
+      throw e;
+    }
+  },
+  async write(dir, name, data) {
+    const fh = await dir.getFileHandle(name, { create: true });
+    const w = await fh.createWritable();
+    await w.write(data);
+    await w.close();
+    return fh;
+  },
+  async loadImages(data, onProgress) {
+    const names = [...new Set(data.figures.flatMap((f) => (f.images || [f.image]).filter((x) => x && x.startsWith('img:')).map((x) => x.slice(4))))];
+    let done = 0;
+    const next = async () => {
+      while (names.length) {
+        const name = names.shift();
+        if (!this.cache.has(name)) {
+          try { this.cache.set(name, URL.createObjectURL(await (await this.imgDir.getFileHandle(name)).getFile())); }
+          catch { this.cache.set(name, ''); }
+        }
+        onProgress && onProgress(++done);
+      }
+    };
+    const total = names.length;
+    await Promise.all([1, 2, 3, 4, 5, 6].map(next));
+    return total;
+  },
+  // Pasa las imágenes nuevas (data:) a archivos y escribe el JSON
+  async save(st) {
+    for (const f of st.figures) {
+      for (let i = 0; i < f.images.length; i++) {
+        const src = f.images[i];
+        if (!src.startsWith('data:')) continue;
+        const blob = dataURLtoBlob(src);
+        const ext = (blob.type.split('/')[1] || 'jpg').replace('jpeg', 'jpg').replace('svg+xml', 'svg');
+        const name = `${f.id}-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}.${ext}`;
+        await this.write(this.imgDir, name, blob);
+        this.cache.set(name, URL.createObjectURL(blob));
+        f.images[i] = 'img:' + name;
+      }
+      f.image = f.images[0] || '';
+    }
+    const fh = await this.write(this.handle, DATA_FILE, JSON.stringify(st, null, 1));
+    this.lastSeen = (await fh.getFile()).lastModified;
+  },
+  // Borra imágenes que ya no usa ninguna figura (solo si tienen más de 1 día,
+  // por si otra PC acaba de añadirlas)
+  async cleanup(st) {
+    const used = new Set(st.figures.flatMap((f) => f.images).filter((x) => x.startsWith('img:')).map((x) => x.slice(4)));
+    const dayAgo = Date.now() - 86400000;
+    for await (const [name, h] of this.imgDir.entries()) {
+      if (h.kind !== 'file' || used.has(name)) continue;
+      try { if ((await h.getFile()).lastModified < dayAgo) await this.imgDir.removeEntry(name); } catch {}
+    }
+  },
+  forgetImages() {
+    this.cache.forEach((u) => u && URL.revokeObjectURL(u));
+    this.cache.clear();
+  },
+};
+
+function dataURLtoBlob(d) {
+  const [head, body] = d.split(',');
+  const mime = (head.match(/data:([^;,]+)/) || [])[1] || 'image/jpeg';
+  if (!/;base64/.test(head)) return new Blob([decodeURIComponent(body)], { type: mime });
+  const bin = atob(body);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+function blobToDataURL(blob) {
+  return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(blob); });
+}
+// URL mostrable de una imagen (las de la carpeta se resuelven a blob: en memoria)
+const U = (src) => (src && src.startsWith('img:') ? folder.cache.get(src.slice(4)) || '' : src || '');
+
 const store = {
   async load() {
     if (window.api) return window.api.load();
@@ -41,6 +155,17 @@ const store = {
   },
   async save(data) {
     if (window.api) return window.api.save(data);
+    if (folder.handle) {
+      // Guardados en fila para no escribir dos veces a la vez
+      folder.queue = folder.queue.then(() => folder.save(data)).then(() => {
+        if (folder.failed) { folder.failed = false; toast('✓ Guardado en la carpeta de nuevo'); }
+      }).catch((e) => {
+        folder.failed = true;
+        console.error(e);
+        toast('⚠ No se pudo guardar en la carpeta. ¿Está abierto Google Drive?');
+      });
+      return folder.queue;
+    }
     try { await idb.set('state', JSON.parse(JSON.stringify(data))); }
     catch (e) {
       try { localStorage.setItem(LS_KEY, JSON.stringify(data)); }
@@ -164,7 +289,7 @@ function filtered() {
 
 function thumbHTML(f) {
   return f.image
-    ? `<img src="${esc(f.image)}" alt="">`
+    ? `<img src="${esc(U(f.image))}" alt="">`
     : '<span>◆</span>';
 }
 
@@ -245,7 +370,7 @@ function renderMoney() {
       : f.releaseDate ? `Sale ${fmtMonth(f.releaseDate)}` : '';
     return `
       <div class="pay ${d.cls}" data-id="${f.id}">
-        <div class="pthumb" data-act="zoom" style="${f.image ? `background-image:url('${esc(f.image).replace(/'/g, '%27')}')` : ''}">${f.image ? '' : '◆'}</div>
+        <div class="pthumb" data-act="zoom" style="${f.image ? `background-image:url('${esc(U(f.image)).replace(/'/g, '%27')}')` : ''}">${f.image ? '' : '◆'}</div>
         <div class="pbody">
           <div class="ptop"><span class="pname" data-act="edit">${esc(f.name)}</span><span class="prest">${money(remaining(f))}</span></div>
           <div class="bar"><i style="width:${pct}%"></i></div>
@@ -341,7 +466,7 @@ let viewerIdx = 0;
 function viewerShow() {
   const f = byId(viewerId);
   const n = f.images.length;
-  $('#viewer-img').src = f.images[viewerIdx % n];
+  $('#viewer-img').src = U(f.images[viewerIdx % n]);
   $('#viewer-cap').textContent = f.name + (n > 1 ? `  ·  ${(viewerIdx % n) + 1}/${n}` : '');
 }
 function openViewer(f) {
@@ -368,12 +493,12 @@ function renderGallery() {
   const img = $('#img-preview');
   img.hidden = !main;
   $('#dz-hint').hidden = !!main;
-  if (main) img.src = main; else img.removeAttribute('src');
+  if (main) img.src = U(main); else img.removeAttribute('src');
   const g = $('#gallery');
   g.hidden = !draftImages.length;
   g.innerHTML = draftImages.map((src, i) => `
     <div class="gthumb ${i === 0 ? 'main' : ''}" data-i="${i}" title="${i === 0 ? 'Imagen principal' : 'Clic para hacerla principal'}">
-      <img src="${esc(src)}" alt="" />
+      <img src="${esc(U(src))}" alt="" />
       ${i === 0 ? '<span class="gstar">★</span>' : ''}
       <button type="button" class="gdel" data-del="${i}" title="Quitar">✕</button>
     </div>`).join('') + '<button type="button" class="gadd" id="gadd" title="Añadir más imágenes">＋</button>';
@@ -698,7 +823,7 @@ function showGo(i, first) {
   const imgs = f.images;
   const k = (show.ptr[f.id] || 0) % imgs.length;
   show.ptr[f.id] = k + 1;
-  const src = imgs[k];
+  const src = U(imgs[k]);
   show.cur = { id: f.id, k };
 
   // Crossfade entre dos <img>
@@ -729,7 +854,7 @@ function showGo(i, first) {
 
   // Precarga la siguiente
   const pre = show.list[(show.i + 1) % n];
-  if (pre) new Image().src = pre.images[(show.ptr[pre.id] || 0) % pre.images.length];
+  if (pre) new Image().src = U(pre.images[(show.ptr[pre.id] || 0) % pre.images.length]);
 
   showSchedule();
 }
@@ -835,8 +960,18 @@ $('#btn-settings').addEventListener('click', () => {
 $('#settings-x').addEventListener('click', () => $('#settings').close());
 $('#s-currency').addEventListener('change', (e) => { state.settings.currency = e.target.value; persist(); render(); });
 
-$('#btn-export').addEventListener('click', () => {
-  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+$('#btn-export').addEventListener('click', async () => {
+  // Las imágenes de la carpeta se incluyen dentro de la copia
+  const copy = JSON.parse(JSON.stringify(state));
+  for (const f of copy.figures) {
+    f.images = await Promise.all(f.images.map(async (src) => {
+      if (!src.startsWith('img:')) return src;
+      try { return await blobToDataURL(await (await fetch(U(src))).blob()); } catch { return ''; }
+    }));
+    f.images = f.images.filter(Boolean);
+    f.image = f.images[0] || '';
+  }
+  const blob = new Blob([JSON.stringify(copy, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `mis-figuras-${new Date().toISOString().slice(0, 10)}.json`;
@@ -863,9 +998,176 @@ $('#import-file').addEventListener('change', async (e) => {
 /* ======================================================================
    Inicio
    ====================================================================== */
-(async function init() {
-  const data = await store.load();
-  if (data && Array.isArray(data.figures)) loadState(data);
-  await initWindow();
+/* ---------- Pantalla de conexión con la carpeta ---------- */
+function gate(mode, extra = '') {
+  const g = $('#gate');
+  if (!mode) { g.hidden = true; return; }
+  g.hidden = false;
+  const name = folder.handle?.name || folder.pending?.name || '';
+  const views = {
+    loading: ['☁', 'Cargando desde Google Drive…', extra || '', []],
+    connect: ['☁', 'Conectar con tu carpeta', `Tus figuras están en la carpeta <b>${esc(name)}</b>. Pulsa el botón para abrirla.`, [['gate-connect', 'Abrir mis figuras', 'primary']]],
+    offline: ['⚠', 'Google Drive no está disponible', `No encuentro la carpeta <b>${esc(name)}</b>. Abre <b>Google Drive para escritorio</b> y espera a que aparezca la unidad, luego pulsa Reintentar.<br><span class="small">Se reintenta solo cuando vuelves a esta ventana.</span>`, [['gate-retry', 'Reintentar', 'primary'], ['gate-other', 'Elegir otra carpeta', 'ghost'], ['gate-forget', 'Dejar de usar la carpeta', 'ghost']]],
+  }[mode];
+  g.dataset.mode = mode;
+  g.innerHTML = `<div class="gate-box"><div class="big">${views[0]}</div><h2>${views[1]}</h2><p>${views[2]}</p>
+    <div class="gate-actions">${views[3].map(([id, t, c]) => `<button class="btn ${c}" id="${id}">${t}</button>`).join('')}</div></div>`;
+}
+
+// Intenta abrir la carpeta recordada y cargar los datos. request=true solo tras un clic.
+async function openFolder(h, request) {
+  if (!(await folder.permission(h, request))) { folder.pending = h; gate('connect'); return false; }
+  try {
+    gate('loading');
+    await folder.open(h);
+    folder.pending = null;
+    const data = await folder.readData();
+    if (data && Array.isArray(data.figures)) {
+      const total = await folder.loadImages(data, (n) => gate('loading', `Imágenes ${n} de ${totalImgs(data)}`));
+      loadState(data);
+      if (total) folder.cleanup(state).catch(() => {});
+    } else {
+      state = { figures: [], settings: { currency: 'MXN' } };
+    }
+    gate(null);
+    render();
+    return true;
+  } catch (e) {
+    console.warn(e);
+    folder.handle = null;
+    folder.pending = h;
+    gate('offline');
+    return false;
+  }
+}
+const totalImgs = (d) => new Set(d.figures.flatMap((f) => f.images || [f.image]).filter((x) => x && x.startsWith('img:'))).size;
+
+$('#gate').addEventListener('click', async (e) => {
+  const id = e.target.id;
+  if (id === 'gate-connect' || id === 'gate-retry') await openFolder(folder.pending, true);
+  if (id === 'gate-other') await chooseFolder();
+  if (id === 'gate-forget') await forgetFolder();
+});
+
+// Al volver a la ventana: reintenta si Drive no estaba, o recarga si otra PC cambió los datos
+window.addEventListener('focus', async () => {
+  if (window.api) return;
+  if ($('#gate').dataset.mode === 'offline' && !$('#gate').hidden && folder.pending) return openFolder(folder.pending, false);
+  if (!folder.handle || folder.failed || $('#modal').open) return;
+  try {
+    await folder.queue;
+    const file = await (await folder.handle.getFileHandle(DATA_FILE)).getFile();
+    if (file.lastModified !== folder.lastSeen) { await openFolder(folder.handle, false); toast('Datos actualizados desde Google Drive'); }
+  } catch {}
+});
+
+// Elegir carpeta (desde Ajustes): mueve tus datos ahí o abre los que ya tenga
+async function chooseFolder() {
+  let h;
+  try { h = await window.showDirectoryPicker({ id: 'mis-figuras', mode: 'readwrite', startIn: 'documents' }); }
+  catch { return; } // cancelado
+  if (!(await folder.permission(h, true))) { toast('Sin permiso para usar esa carpeta'); return; }
+  try { await h.getDirectoryHandle(IMG_DIR, { create: true }); } catch { toast('No se puede escribir en esa carpeta'); return; }
+
+  let existing = null;
+  try { existing = JSON.parse(await (await (await h.getFileHandle(DATA_FILE)).getFile()).text()); } catch {}
+  const wasFolder = !!folder.handle;
+
+  if (existing && Array.isArray(existing.figures)) {
+    const msg = state.figures.length && !wasFolder
+      ? `Esa carpeta ya tiene ${existing.figures.length} figuras guardadas. Se abrirán esas, y las ${state.figures.length} de este navegador se borrarán de esta PC. Si quieres conservarlas, cancela y usa primero "Exportar copia". ¿Continuar?`
+      : `Esa carpeta ya tiene ${existing.figures.length} figuras guardadas. ¿Abrirlas?`;
+    if (!(await ask(msg, 'Abrir'))) return;
+    folder.forgetImages();
+    await idb.set('folder', h);
+    if (await openFolder(h, false)) await clearLocalData();
+    $('#settings').close();
+    syncStorageUI();
+    toast(`📂 Conectado a "${h.name}"`);
+    return;
+  }
+
+  const n = state.figures.length;
+  if (n && !(await ask(`Se moverán tus ${n} figuras con sus imágenes a la carpeta "${h.name}" y se borrarán de este navegador. ¿Continuar?`, 'Mover'))) return;
+  try {
+    gate('loading', 'Copiando tus figuras e imágenes…');
+    // Si venimos de otra carpeta, primero hay que traer sus imágenes como datos
+    if (wasFolder) {
+      for (const f of state.figures) f.images = await Promise.all(f.images.map(async (src) => (src.startsWith('img:') && U(src) ? blobToDataURL(await (await fetch(U(src))).blob()) : src)));
+    }
+    await folder.queue.catch(() => {});
+    await folder.open(h);
+    await folder.save(state);
+    await idb.set('folder', h);
+    await clearLocalData();
+    gate(null);
+    render();
+    $('#settings').close();
+    syncStorageUI();
+    toast(n ? `☁ ${n} figuras movidas a "${h.name}"` : `📂 Conectado a "${h.name}"`);
+  } catch (e) {
+    console.error(e);
+    gate(null);
+    toast('⚠ No se pudo copiar a la carpeta: ' + e.message);
+  }
+}
+
+// Borra la copia local (imágenes incluidas) del navegador
+async function clearLocalData() {
+  try { await idb.del('state'); } catch {}
+  try { localStorage.removeItem(LS_KEY); } catch {}
+}
+
+async function forgetFolder() {
+  const ok = await ask('¿Dejar de usar la carpeta? Tus figuras se quedan guardadas en ella, pero esta app quedará vacía en este navegador hasta que la vuelvas a conectar.', 'Dejar de usarla');
+  if (!ok) return;
+  await idb.del('folder');
+  folder.handle = null;
+  folder.pending = null;
+  folder.forgetImages();
+  state = { figures: [], settings: { currency: 'MXN' } };
+  gate(null);
   render();
+  $('#settings').open && $('#settings').close();
+  syncStorageUI();
+}
+
+function syncStorageUI() {
+  if (window.api) return; // la versión de escritorio guarda en su propia carpeta
+  const where = $('#s-where');
+  if (!folder.supported()) {
+    where.innerHTML = 'En este navegador. <span class="muted">(Para usar Google Drive abre la app en Chrome o Edge.)</span>';
+    $('#btn-folder').hidden = $('#btn-forget').hidden = true;
+    return;
+  }
+  if (folder.handle) {
+    where.innerHTML = `☁ En la carpeta <b>${esc(folder.handle.name)}</b>. En esta PC no se guardan imágenes.`;
+    $('#btn-folder').textContent = 'Cambiar carpeta';
+    $('#btn-forget').hidden = false;
+  } else {
+    where.innerHTML = 'En este navegador (las imágenes quedan guardadas en esta PC).';
+    $('#btn-folder').textContent = '☁ Guardar en Google Drive…';
+    $('#btn-forget').hidden = true;
+  }
+}
+$('#btn-folder').addEventListener('click', chooseFolder);
+$('#btn-forget').addEventListener('click', forgetFolder);
+$('#btn-settings').addEventListener('click', syncStorageUI);
+
+/* ======================================================================
+   Inicio
+   ====================================================================== */
+(async function init() {
+  await initWindow();
+  if (window.api) $('#w-storage').hidden = true;
+  let saved = null;
+  if (folder.supported()) { try { saved = await idb.get('folder'); } catch {} }
+  if (saved) {
+    await openFolder(saved, false);
+  } else {
+    const data = await store.load();
+    if (data && Array.isArray(data.figures)) loadState(data);
+    render();
+  }
+  syncStorageUI();
 })();

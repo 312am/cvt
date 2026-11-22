@@ -131,6 +131,15 @@
     <label class="field" id="w-opacity"><span>Opacidad de la ventana <b id="s-op-val">100%</b></span>
       <input id="s-opacity" type="range" min="30" max="100" step="5" value="100" />
     </label>
+    <div class="storage" id="w-storage">
+      <span class="label-sm">Dónde se guardan tus figuras</span>
+      <p id="s-where" class="small"></p>
+      <div class="row">
+        <button class="btn ghost" id="btn-folder">☁ Guardar en Google Drive…</button>
+        <button class="btn ghost" id="btn-forget" hidden>Dejar de usar la carpeta</button>
+      </div>
+      <p class="muted small">Elige una carpeta dentro de tu unidad de Google Drive (por ejemplo <b>G:\Mi unidad\MisFiguras</b>). Necesitas tener instalado Google Drive para escritorio.</p>
+    </div>
     <div class="row">
       <button class="btn ghost" id="btn-export">Exportar copia</button>
       <button class="btn ghost" id="btn-import">Importar copia</button>
@@ -190,6 +199,8 @@
     <button class="show-play" id="show-play" title="Pausa / reproducir (espacio)">❚❚</button>
     <div class="show-progress"><i id="show-bar"></i></div>
   </section>
+
+  <div id="gate" class="gate" hidden></div>
 
   <div id="toast" class="toast" hidden></div>
 

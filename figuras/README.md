@@ -17,8 +17,24 @@ Una app pequeña que se puede quedar **siempre encima** de las demás ventanas, 
 
 Es **un solo archivo**. Descárgalo, guárdalo en una carpeta fija (por ejemplo `Documentos/MisFiguras/`) y ábrelo con doble clic. No necesitas instalar nada.
 
-- Tus datos se guardan en el navegador (IndexedDB), así que **no muevas ni renombres el archivo**, porque el navegador lo tomaría como otra página y no vería tus datos. Usa ⚙ → *Exportar copia* de vez en cuando.
+- Por defecto tus datos se guardan en el navegador (IndexedDB), así que **no muevas ni renombres el archivo**, porque el navegador lo tomaría como otra página y no vería tus datos. Usa ⚙ → *Exportar copia* de vez en cuando. Para no guardar nada en la PC, mira *Guardar todo en Google Drive* más abajo.
 - 📌 **Ventana flotante siempre encima** (Chrome o Edge): abre la app en una ventana pequeña que se queda encima de todas las demás. Ciérrala o pulsa 📌 otra vez para que vuelva a la pestaña.
+
+### Guardar todo en Google Drive (nada en la PC)
+
+Si no quieres que las imágenes queden guardadas en la computadora, la app puede guardar todo (datos e imágenes) en una carpeta de Google Drive. Funciona en **Chrome o Edge**.
+
+1. Instala **Google Drive para escritorio**. En sus preferencias elige **"Transmitir archivos"** (*Stream files*), no "Duplicar archivos" (*Mirror*): duplicar copia todo a la PC.
+2. En la app ve a ⚙ → **☁ Guardar en Google Drive…** y elige o crea una carpeta en tu unidad, por ejemplo `G:\Mi unidad\MisFiguras`.
+3. Tus figuras se mueven a esa carpeta (`mis-figuras.json` y una subcarpeta `imagenes/`) y **se borran del navegador**. En el navegador solo queda recordado cuál es la carpeta.
+
+Después:
+- Si Google Drive está activo, la app carga tus figuras desde la carpeta. Chrome puede pedirte permiso otra vez al reiniciarlo: pulsa **Abrir mis figuras** (y, si te lo ofrece, *Permitir en cada visita*).
+- Si Google Drive no está activo, la app no muestra nada y te avisa. Cuando abras Drive, pulsa *Reintentar* o simplemente vuelve a la ventana.
+- Si usas la app en otra PC con la misma carpeta, al volver a la ventana se recargan los cambios.
+- También puedes guardar `mis-figuras.html` dentro de la carpeta de Drive. Así ni siquiera la app queda en la PC, y solo abre cuando Drive está activo.
+
+Nota: en modo "Transmitir", Google Drive guarda temporalmente en una caché los archivos que abres, y la va vaciando sola.
 
 ### Que se abra al abrir el navegador
 
