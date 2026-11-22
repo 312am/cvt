@@ -8,6 +8,7 @@ Una app pequeña que se puede quedar **siempre encima** de las demás ventanas, 
 - **Pre-orden**: con fecha de salida, fecha límite de pago, anticipo y cuánto falta. Botón **✓ Llegó** para pasarla a compradas.
 - **Deseadas**: las que quieres comprar. Botones para pasarlas a *Pre-ordenar* o *Comprada*.
 - **Pagos**: el total de dinero por pagar, el próximo pago, y una lista con barra de progreso. Puedes **Abonar** una cantidad o **Liquidar** el resto. Los pagos vencidos salen en rojo y los de los próximos 7 días en amarillo.
+- 🖼 **Vitrina**: tus figuras en grande, una tras otra, con transición suave y fondo difuminado con los colores de cada figura. Puedes elegir qué lista mostrar, la velocidad (de 3 s a 1 min), orden aleatorio, mostrar u ocultar el nombre y pantalla completa. Teclas: ← → para cambiar, espacio para pausar, F para pantalla completa, I para el nombre y Esc para salir. Desde el visor de imagen (⤢) puedes empezar la vitrina en esa figura. Funciona también dentro de la ventana flotante 📌, como un marco de fotos encima de todo.
 - **Imágenes**: haz clic para elegir un archivo, arrástralo, pégalo con Ctrl+V o pon una URL. Haz clic en ⤢ para verla en grande.
 - 📌 **Siempre encima**: en el navegador abre una ventana flotante y en la versión de escritorio fija la ventana.
 - ⚙ Ajustes: moneda y exportar o importar una copia de seguridad (.json).

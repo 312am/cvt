@@ -12,6 +12,7 @@
   <header class="titlebar">
     <div class="brand"><span class="logo">◆</span> Mis Figuras</div>
     <div class="win-controls">
+      <button id="btn-show" class="icon-btn" title="Vitrina (presentación)">🖼</button>
       <button id="btn-settings" class="icon-btn" title="Ajustes">⚙</button>
       <button id="btn-pin" class="icon-btn pin" title="Siempre encima">📌</button>
       <button id="btn-min" class="icon-btn" title="Minimizar">–</button>
@@ -100,7 +101,7 @@
   <!-- Visor de imagen -->
   <dialog id="viewer" class="viewer">
     <img id="viewer-img" alt="" />
-    <div class="viewer-cap" id="viewer-cap"></div>
+    <div class="viewer-cap"><span id="viewer-cap"></span> <button class="btn" id="viewer-show">🖼 Vitrina desde aquí</button></div>
   </dialog>
 
   <!-- Ajustes -->
@@ -143,6 +144,46 @@
       </div>
     </form>
   </dialog>
+
+  <!-- Vitrina: presentación a pantalla completa -->
+  <section id="show" class="show" hidden aria-label="Vitrina">
+    <div class="show-bg" id="show-bg"></div>
+    <div class="show-stage" id="show-stage">
+      <img class="show-img" id="show-a" alt="" />
+      <img class="show-img" id="show-b" alt="" />
+    </div>
+    <div class="show-cap" id="show-cap">
+      <span class="show-pill" id="show-pill"></span>
+      <div class="show-name" id="show-name"></div>
+      <div class="show-sub" id="show-sub"></div>
+    </div>
+    <div class="show-top">
+      <span class="show-count" id="show-count"></span>
+      <span class="spacer"></span>
+      <select id="show-filter" title="Qué figuras mostrar">
+        <option value="all">Todas</option>
+        <option value="owned">Compradas</option>
+        <option value="preorder">Pre-orden</option>
+        <option value="wish">Deseadas</option>
+      </select>
+      <select id="show-speed" title="Cambiar cada…">
+        <option value="3">3 s</option>
+        <option value="5">5 s</option>
+        <option value="8">8 s</option>
+        <option value="15">15 s</option>
+        <option value="30">30 s</option>
+        <option value="60">1 min</option>
+      </select>
+      <button class="show-btn" id="show-shuffle" title="Orden aleatorio">🔀</button>
+      <button class="show-btn" id="show-info" title="Mostrar/ocultar nombre">ℹ</button>
+      <button class="show-btn" id="show-fs" title="Pantalla completa (F)">⛶</button>
+      <button class="show-btn" id="show-close" title="Salir (Esc)">✕</button>
+    </div>
+    <button class="show-nav prev" id="show-prev" title="Anterior (←)">‹</button>
+    <button class="show-nav next" id="show-next" title="Siguiente (→)">›</button>
+    <button class="show-play" id="show-play" title="Pausa / reproducir (espacio)">❚❚</button>
+    <div class="show-progress"><i id="show-bar"></i></div>
+  </section>
 
   <div id="toast" class="toast" hidden></div>
 

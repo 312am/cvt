@@ -323,12 +323,15 @@ $('#sort').addEventListener('change', render);
 $('#fab').addEventListener('click', () => openForm(null));
 
 /* ---------- Visor ---------- */
+let viewerId = null;
 function openViewer(f) {
+  viewerId = f.id;
   $('#viewer-img').src = f.image;
   $('#viewer-cap').textContent = f.name;
   $('#viewer').showModal();
 }
 $('#viewer').addEventListener('click', () => $('#viewer').close());
+$('#viewer-show').addEventListener('click', (e) => { e.stopPropagation(); $('#viewer').close(); openShow(viewerId); });
 
 /* ======================================================================
    Formulario
@@ -468,6 +471,7 @@ F('imgurl').addEventListener('input', (e) => {
   else if (!v && /^https?:/.test(draftImage)) setImage('');
 });
 function wireDocument(d) {
+  d.addEventListener('keydown', (e) => showKeys(e));
   d.addEventListener('paste', (e) => {
     if (!$('#modal').open) return;
     const item = [...e.clipboardData.items].find((i) => i.type.startsWith('image/'));
@@ -557,6 +561,170 @@ async function openFloating() {
     $('#btn-pin').classList.remove('on');
     $('#btn-pin').title = 'Abrir en ventana flotante (siempre encima)';
   });
+}
+
+/* ======================================================================
+   Vitrina: presentación de figuras en grande que cambia sola
+   ====================================================================== */
+const STATUS_TXT = { owned: 'En mi colección', preorder: 'Pre-orden', wish: 'Deseada' };
+const show = { list: [], i: 0, timer: null, idleTimer: null, playing: true, front: 'a' };
+const showCfg = () => (state.settings.show ||= { filter: 'all', speed: 8, shuffle: false, info: true });
+
+function showBuildList(keepId) {
+  const cfg = showCfg();
+  let list = state.figures.filter((f) => f.image && (cfg.filter === 'all' || f.status === cfg.filter));
+  if (cfg.shuffle) {
+    for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
+  } else {
+    const order = { owned: 0, preorder: 1, wish: 2 };
+    list.sort((a, b) => order[a.status] - order[b.status] || (b.createdAt || 0) - (a.createdAt || 0));
+  }
+  show.list = list;
+  const k = keepId ? list.findIndex((f) => f.id === keepId) : -1;
+  show.i = k >= 0 ? k : 0;
+}
+
+function openShow(startId) {
+  const cfg = showCfg();
+  showBuildList(startId);
+  // Si pides empezar en una figura que el filtro actual excluye, muestra todas
+  if (startId && show.list[show.i]?.id !== startId) { cfg.filter = 'all'; persist(); showBuildList(startId); }
+  if (!show.list.length) {
+    // Si el filtro no tiene figuras con imagen, intenta con todas
+    if (cfg.filter !== 'all' && state.figures.some((f) => f.image)) { cfg.filter = 'all'; persist(); showBuildList(startId); }
+    else { toast('Añade imágenes a tus figuras para usar la vitrina'); return; }
+  }
+  $('#show-filter').value = cfg.filter;
+  $('#show-speed').value = String(cfg.speed);
+  $('#show-shuffle').classList.toggle('on', !!cfg.shuffle);
+  $('#show').classList.toggle('no-info', cfg.info === false);
+  $('#show-a').className = 'show-img';
+  $('#show-b').className = 'show-img';
+  $('#show').hidden = false;
+  show.playing = true;
+  showPoke();
+  showGo(show.i, true);
+}
+
+function closeShow() {
+  clearTimeout(show.timer);
+  clearTimeout(show.idleTimer);
+  $('#show').hidden = true;
+  if (doc.fullscreenElement) doc.exitFullscreen().catch(() => {});
+}
+
+function showGo(i, first) {
+  const n = show.list.length;
+  if (!n) return closeShow();
+  show.i = ((i % n) + n) % n;
+  const f = show.list[show.i];
+  const dur = showCfg().speed;
+
+  // Crossfade entre dos <img>
+  const cur = $('#show-' + show.front);
+  const nextKey = first ? show.front : show.front === 'a' ? 'b' : 'a';
+  const nxt = $('#show-' + nextKey);
+  nxt.style.setProperty('--dur', dur + 1 + 's');
+  const swap = () => {
+    if (!first) cur.classList.remove('active');
+    nxt.classList.remove('active');
+    void nxt.offsetWidth; // reinicia la animación
+    nxt.classList.add('active');
+    show.front = nextKey;
+  };
+  if (nxt.getAttribute('src') === f.image && nxt.complete) swap();
+  else { nxt.onload = nxt.onerror = () => { nxt.onload = nxt.onerror = null; swap(); }; nxt.src = f.image; }
+
+  $('#show-bg').style.backgroundImage = `url("${f.image.replace(/"/g, '%22')}")`;
+  const pill = $('#show-pill');
+  pill.textContent = STATUS_TXT[f.status] + (f.status === 'preorder' && f.releaseDate ? ' · ' + fmtMonth(f.releaseDate) : '');
+  pill.className = 'show-pill ' + f.status;
+  $('#show-name').textContent = f.name;
+  $('#show-sub').textContent = [f.series, f.maker].filter(Boolean).join(' · ');
+  const cap = $('#show-cap');
+  cap.classList.remove('anim'); void cap.offsetWidth; cap.classList.add('anim');
+  $('#show-count').textContent = `${show.i + 1} / ${n}`;
+
+  // Precarga la siguiente
+  const pre = show.list[(show.i + 1) % n];
+  if (pre) new Image().src = pre.image;
+
+  showSchedule();
+}
+
+function showSchedule() {
+  clearTimeout(show.timer);
+  const bar = $('#show-bar');
+  bar.style.transition = 'none';
+  bar.style.width = '0';
+  $('#show-play').textContent = show.playing ? '❚❚' : '▶';
+  if (!show.playing || show.list.length < 2) return;
+  const ms = showCfg().speed * 1000;
+  void bar.offsetWidth;
+  bar.style.transition = `width ${ms}ms linear`;
+  bar.style.width = '100%';
+  show.timer = setTimeout(() => showGo(show.i + 1), ms);
+}
+
+function showToggle() { show.playing = !show.playing; showSchedule(); showPoke(); }
+
+// Oculta controles tras 2.5 s sin mover el ratón
+function showPoke() {
+  const el = $('#show');
+  el.classList.remove('idle');
+  clearTimeout(show.idleTimer);
+  show.idleTimer = setTimeout(() => el.classList.add('idle'), 2500);
+}
+
+$('#btn-show').addEventListener('click', () => openShow());
+$('#show-close').addEventListener('click', closeShow);
+$('#show-prev').addEventListener('click', () => { showGo(show.i - 1); showPoke(); });
+$('#show-next').addEventListener('click', () => { showGo(show.i + 1); showPoke(); });
+$('#show-play').addEventListener('click', showToggle);
+$('#show-stage').addEventListener('click', () => { if ($('#show').classList.contains('idle')) showPoke(); else showToggle(); });
+$('#show').addEventListener('mousemove', showPoke);
+$('#show-filter').addEventListener('change', (e) => {
+  showCfg().filter = e.target.value; persist();
+  showBuildList();
+  if (!show.list.length) { toast('No hay figuras con imagen en esa lista'); return; }
+  showGo(0);
+});
+$('#show-speed').addEventListener('change', (e) => { showCfg().speed = +e.target.value; persist(); showSchedule(); });
+$('#show-shuffle').addEventListener('click', (e) => {
+  const cfg = showCfg(); cfg.shuffle = !cfg.shuffle; persist();
+  e.currentTarget.classList.toggle('on', cfg.shuffle);
+  showBuildList(show.list[show.i]?.id);
+  $('#show-count').textContent = `${show.i + 1} / ${show.list.length}`;
+});
+$('#show-info').addEventListener('click', () => {
+  const cfg = showCfg(); cfg.info = cfg.info === false; persist();
+  $('#show').classList.toggle('no-info', !cfg.info);
+});
+$('#show-fs').addEventListener('click', () => {
+  if (doc.fullscreenElement) doc.exitFullscreen().catch(() => {});
+  else ($('#show').requestFullscreen?.() || Promise.reject()).catch(() => toast('Pantalla completa no disponible aquí'));
+});
+// Deslizar con el dedo (pantallas táctiles)
+let touchX = null;
+$('#show').addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+$('#show').addEventListener('touchend', (e) => {
+  if (touchX === null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  touchX = null;
+  if (Math.abs(dx) > 50) showGo(show.i + (dx < 0 ? 1 : -1));
+});
+
+function showKeys(e) {
+  if ($('#show').hidden || e.target.matches('input, select, textarea')) return;
+  const k = e.key;
+  if (k === 'Escape') { if (!doc.fullscreenElement) closeShow(); }
+  else if (k === 'ArrowRight') showGo(show.i + 1);
+  else if (k === 'ArrowLeft') showGo(show.i - 1);
+  else if (k === ' ') { e.preventDefault(); showToggle(); }
+  else if (k === 'f' || k === 'F') $('#show-fs').click();
+  else if (k === 'i' || k === 'I') $('#show-info').click();
+  else return;
+  showPoke();
 }
 
 /* ---------- Ajustes ---------- */
