@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: blob: https: http:; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <title>Mis Figuras</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="titlebar">
+    <div class="brand"><span class="logo">◆</span> Mis Figuras</div>
+    <div class="win-controls">
+      <button id="btn-settings" class="icon-btn" title="Ajustes">⚙</button>
+      <button id="btn-pin" class="icon-btn pin" title="Siempre encima">📌</button>
+      <button id="btn-min" class="icon-btn" title="Minimizar">–</button>
+      <button id="btn-close" class="icon-btn close" title="Cerrar">✕</button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab active" data-tab="owned">Compradas <span class="count" id="c-owned">0</span></button>
+    <button class="tab" data-tab="preorder">Pre-orden <span class="count" id="c-preorder">0</span></button>
+    <button class="tab" data-tab="wish">Deseadas <span class="count" id="c-wish">0</span></button>
+    <button class="tab" data-tab="money">Pagos <span class="count money" id="c-money">0</span></button>
+  </nav>
+
+  <div class="toolbar" id="toolbar">
+    <input id="search" type="search" placeholder="Buscar figura, serie, tienda…" />
+    <select id="sort" title="Ordenar">
+      <option value="recent">Recientes</option>
+      <option value="name">Nombre</option>
+      <option value="price">Precio</option>
+      <option value="date">Fecha salida</option>
+    </select>
+  </div>
+
+  <main id="view"></main>
+
+  <button id="fab" class="fab" title="Añadir figura">＋</button>
+
+  <!-- Modal: añadir / editar -->
+  <dialog id="modal">
+    <form id="form" method="dialog">
+      <div class="modal-head">
+        <h2 id="modal-title">Nueva figura</h2>
+        <button type="button" class="icon-btn" id="modal-x">✕</button>
+      </div>
+
+      <div class="dropzone" id="dropzone" tabindex="0">
+        <img id="img-preview" alt="" hidden />
+        <div class="dz-hint" id="dz-hint">
+          <strong>Imagen</strong><br />
+          Haz clic, arrastra o pega (Ctrl+V)
+        </div>
+        <button type="button" class="dz-clear" id="img-clear" hidden title="Quitar imagen">✕</button>
+      </div>
+      <input type="file" id="file" accept="image/*" hidden />
+      <label class="field"><span>…o URL de la imagen</span>
+        <input id="f-imgurl" type="url" placeholder="https://…" />
+      </label>
+
+      <label class="field"><span>Nombre *</span>
+        <input id="f-name" required placeholder="Ej. Rem 1/7 Crystal Dress" />
+      </label>
+      <div class="row">
+        <label class="field"><span>Serie / franquicia</span><input id="f-series" /></label>
+        <label class="field"><span>Fabricante</span><input id="f-maker" /></label>
+      </div>
+      <div class="row">
+        <label class="field"><span>Estado</span>
+          <select id="f-status">
+            <option value="owned">Comprada</option>
+            <option value="preorder">Pre-orden</option>
+            <option value="wish">Deseada</option>
+          </select>
+        </label>
+        <label class="field"><span>Tienda</span><input id="f-store" /></label>
+      </div>
+      <div class="row">
+        <label class="field"><span>Precio total</span><input id="f-price" type="number" min="0" step="0.01" inputmode="decimal" /></label>
+        <label class="field" id="w-paid"><span>Ya pagado</span><input id="f-paid" type="number" min="0" step="0.01" inputmode="decimal" /></label>
+      </div>
+      <div class="row" id="w-dates">
+        <label class="field"><span>Fecha de salida</span><input id="f-release" type="month" /></label>
+        <label class="field"><span>Fecha límite de pago</span><input id="f-due" type="date" /></label>
+      </div>
+      <label class="field"><span>Notas</span><textarea id="f-notes" rows="2"></textarea></label>
+
+      <div class="modal-actions">
+        <button type="button" class="btn danger" id="btn-delete" hidden>Eliminar</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost" id="btn-cancel">Cancelar</button>
+        <button type="submit" class="btn primary">Guardar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Visor de imagen -->
+  <dialog id="viewer" class="viewer">
+    <img id="viewer-img" alt="" />
+    <div class="viewer-cap" id="viewer-cap"></div>
+  </dialog>
+
+  <!-- Ajustes -->
+  <dialog id="settings">
+    <div class="modal-head">
+      <h2>Ajustes</h2>
+      <button type="button" class="icon-btn" id="settings-x">✕</button>
+    </div>
+    <label class="field"><span>Moneda</span>
+      <select id="s-currency">
+        <option value="MXN">MXN $</option>
+        <option value="USD">USD $</option>
+        <option value="EUR">EUR €</option>
+        <option value="JPY">JPY ¥</option>
+        <option value="COP">COP $</option>
+        <option value="ARS">ARS $</option>
+        <option value="CLP">CLP $</option>
+        <option value="PEN">PEN S/</option>
+        <option value="GBP">GBP £</option>
+      </select>
+    </label>
+    <label class="field" id="w-opacity"><span>Opacidad de la ventana <b id="s-op-val">100%</b></span>
+      <input id="s-opacity" type="range" min="30" max="100" step="5" value="100" />
+    </label>
+    <div class="row">
+      <button class="btn ghost" id="btn-export">Exportar copia</button>
+      <button class="btn ghost" id="btn-import">Importar copia</button>
+    </div>
+    <input type="file" id="import-file" accept="application/json,.json" hidden />
+    <p class="muted small">La copia incluye todas las figuras e imágenes en un archivo .json.</p>
+  </dialog>
+
+  <div id="toast" class="toast" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
