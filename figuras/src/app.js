@@ -50,9 +50,20 @@ const store = {
 };
 
 let state = { figures: [], settings: { currency: 'MXN' } };
+
+// Cada figura guarda varias imágenes en `images`; `image` es siempre la principal (la primera)
+function normalize(f) {
+  if (!Array.isArray(f.images)) f.images = f.image ? [f.image] : [];
+  f.images = f.images.filter(Boolean);
+  f.image = f.images[0] || '';
+  return f;
+}
+function loadState(data) {
+  state = { figures: data.figures.map(normalize), settings: { currency: 'MXN', ...data.settings } };
+}
 let tab = 'owned';
 let editingId = null;
-let draftImage = '';
+let draftImages = [];
 
 // `doc` cambia cuando la app se mueve a la ventana flotante (Picture-in-Picture)
 let doc = document;
@@ -196,6 +207,8 @@ function cardHTML(f) {
     <article class="card" data-id="${f.id}">
       <div class="thumb">${thumbHTML(f)}
         ${f.image ? '<button class="zoom" data-act="zoom" title="Ver imagen">⤢</button>' : ''}
+        ${f.images.length > 1 ? `<span class="badge imgs" title="${f.images.length} imágenes">📷 ${f.images.length}</span>` : ''}
+        ${f.exhibit === false ? '<span class="badge noshow" title="No se exhibe en la vitrina">oculta</span>' : ''}
         ${badge}
       </div>
       <div class="info">
@@ -324,13 +337,24 @@ $('#fab').addEventListener('click', () => openForm(null));
 
 /* ---------- Visor ---------- */
 let viewerId = null;
+let viewerIdx = 0;
+function viewerShow() {
+  const f = byId(viewerId);
+  const n = f.images.length;
+  $('#viewer-img').src = f.images[viewerIdx % n];
+  $('#viewer-cap').textContent = f.name + (n > 1 ? `  ·  ${(viewerIdx % n) + 1}/${n}` : '');
+}
 function openViewer(f) {
   viewerId = f.id;
-  $('#viewer-img').src = f.image;
-  $('#viewer-cap').textContent = f.name;
+  viewerIdx = 0;
+  viewerShow();
   $('#viewer').showModal();
 }
-$('#viewer').addEventListener('click', () => $('#viewer').close());
+$('#viewer').addEventListener('click', (e) => {
+  // Clic en la imagen: siguiente imagen de la figura (si tiene varias); fuera: cerrar
+  if (e.target.id === 'viewer-img' && byId(viewerId).images.length > 1) { viewerIdx++; viewerShow(); return; }
+  $('#viewer').close();
+});
 $('#viewer-show').addEventListener('click', (e) => { e.stopPropagation(); $('#viewer').close(); openShow(viewerId); });
 
 /* ======================================================================
@@ -339,14 +363,37 @@ $('#viewer-show').addEventListener('click', (e) => { e.stopPropagation(); $('#vi
 const form = $('#form');
 const F = (id) => $('#f-' + id);
 
-function setImage(src) {
-  draftImage = src || '';
+function renderGallery() {
+  const main = draftImages[0];
   const img = $('#img-preview');
-  img.hidden = !draftImage;
-  $('#dz-hint').hidden = !!draftImage;
-  $('#img-clear').hidden = !draftImage;
-  if (draftImage) img.src = draftImage; else img.removeAttribute('src');
+  img.hidden = !main;
+  $('#dz-hint').hidden = !!main;
+  if (main) img.src = main; else img.removeAttribute('src');
+  const g = $('#gallery');
+  g.hidden = !draftImages.length;
+  g.innerHTML = draftImages.map((src, i) => `
+    <div class="gthumb ${i === 0 ? 'main' : ''}" data-i="${i}" title="${i === 0 ? 'Imagen principal' : 'Clic para hacerla principal'}">
+      <img src="${esc(src)}" alt="" />
+      ${i === 0 ? '<span class="gstar">★</span>' : ''}
+      <button type="button" class="gdel" data-del="${i}" title="Quitar">✕</button>
+    </div>`).join('') + '<button type="button" class="gadd" id="gadd" title="Añadir más imágenes">＋</button>';
 }
+function addImage(src) {
+  if (!src || draftImages.includes(src)) return;
+  draftImages.push(src);
+  renderGallery();
+}
+$('#gallery').addEventListener('click', (e) => {
+  const del = e.target.closest('[data-del]');
+  if (del) { draftImages.splice(+del.dataset.del, 1); renderGallery(); return; }
+  if (e.target.closest('#gadd')) { $('#file').click(); return; }
+  const t = e.target.closest('.gthumb');
+  if (t && +t.dataset.i > 0) {
+    const [x] = draftImages.splice(+t.dataset.i, 1);
+    draftImages.unshift(x);
+    renderGallery();
+  }
+});
 
 function syncStatusFields() {
   const s = F('status').value;
@@ -370,8 +417,10 @@ function openForm(f) {
   F('release').value = d.releaseDate || '';
   F('due').value = d.dueDate || '';
   F('notes').value = d.notes || '';
-  F('imgurl').value = d.image && /^https?:/.test(d.image) ? d.image : '';
-  setImage(d.image || '');
+  F('imgurl').value = '';
+  F('exhibit').checked = d.exhibit !== false;
+  draftImages = [...(d.images || [])];
+  renderGallery();
   syncStatusFields();
   $('#modal').showModal();
   setTimeout(() => F('name').focus(), 30);
@@ -400,8 +449,13 @@ form.addEventListener('submit', (e) => {
     releaseDate: F('release').value,
     dueDate: F('due').value,
     notes: F('notes').value.trim(),
-    image: draftImage,
+    images: [...draftImages],
+    image: draftImages[0] || '',
+    exhibit: F('exhibit').checked,
   };
+  // Si escribiste una URL pero no pulsaste "Añadir", se añade igual
+  const pendingUrl = F('imgurl').value.trim();
+  if (/^https?:\/\/.+/.test(pendingUrl) && !data.images.includes(pendingUrl)) { data.images.push(pendingUrl); data.image = data.images[0]; }
 
   if (editingId) Object.assign(byId(editingId), data);
   else state.figures.push({ id: uid(), createdAt: Date.now(), ...data });
@@ -447,35 +501,39 @@ function fileToDataURL(file, max = 700) {
 }
 async function takeFile(file) {
   if (!file || !file.type.startsWith('image/')) return;
-  try { setImage(await fileToDataURL(file)); F('imgurl').value = ''; }
+  try { addImage(await fileToDataURL(file)); }
   catch { toast('No se pudo leer la imagen'); }
+}
+async function takeFiles(files) {
+  for (const f of files) await takeFile(f);
 }
 
 const dz = $('#dropzone');
-dz.addEventListener('click', (e) => { if (!e.target.closest('#img-clear')) $('#file').click(); });
+dz.addEventListener('click', () => $('#file').click());
 dz.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); $('#file').click(); } });
-$('#file').addEventListener('change', (e) => { takeFile(e.target.files[0]); e.target.value = ''; });
-$('#img-clear').addEventListener('click', () => { setImage(''); F('imgurl').value = ''; });
+$('#file').addEventListener('change', async (e) => { const files = [...e.target.files]; e.target.value = ''; await takeFiles(files); });
 ['dragenter', 'dragover'].forEach((ev) => dz.addEventListener(ev, (e) => { e.preventDefault(); dz.classList.add('over'); }));
 ['dragleave', 'drop'].forEach((ev) => dz.addEventListener(ev, () => dz.classList.remove('over')));
 dz.addEventListener('drop', (e) => {
   e.preventDefault();
-  const file = e.dataTransfer.files[0];
-  if (file) return takeFile(file);
+  if (e.dataTransfer.files.length) return takeFiles([...e.dataTransfer.files]);
   const url = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
-  if (/^https?:\/\//.test(url)) { F('imgurl').value = url; setImage(url); }
+  if (/^https?:\/\//.test(url)) addImage(url.trim());
 });
-F('imgurl').addEventListener('input', (e) => {
-  const v = e.target.value.trim();
-  if (/^https?:\/\/.+/.test(v)) setImage(v);
-  else if (!v && /^https?:/.test(draftImage)) setImage('');
-});
+function addUrl() {
+  const v = F('imgurl').value.trim();
+  if (!/^https?:\/\/.+/.test(v)) { F('imgurl').focus(); return; }
+  addImage(v);
+  F('imgurl').value = '';
+}
+$('#btn-addurl').addEventListener('click', addUrl);
+F('imgurl').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addUrl(); } });
 function wireDocument(d) {
   d.addEventListener('keydown', (e) => showKeys(e));
   d.addEventListener('paste', (e) => {
     if (!$('#modal').open) return;
-    const item = [...e.clipboardData.items].find((i) => i.type.startsWith('image/'));
-    if (item) { e.preventDefault(); takeFile(item.getAsFile()); }
+    const items = [...e.clipboardData.items].filter((i) => i.type.startsWith('image/'));
+    if (items.length) { e.preventDefault(); takeFiles(items.map((i) => i.getAsFile())); }
   });
   // Evita que soltar una imagen fuera de la zona abra el archivo en la ventana
   d.addEventListener('dragover', (e) => e.preventDefault());
@@ -567,12 +625,30 @@ async function openFloating() {
    Vitrina: presentación de figuras en grande que cambia sola
    ====================================================================== */
 const STATUS_TXT = { owned: 'En mi colección', preorder: 'Pre-orden', wish: 'Deseada' };
-const show = { list: [], i: 0, timer: null, idleTimer: null, playing: true, front: 'a' };
-const showCfg = () => (state.settings.show ||= { filter: 'all', speed: 8, shuffle: false, info: true });
+// ptr: por figura, qué imagen toca la próxima vez que aparezca
+const show = { list: [], i: 0, timer: null, idleTimer: null, playing: true, front: 'a', ptr: {}, cur: null };
+const ALL_LISTS = ['owned', 'preorder', 'wish'];
+function showCfg() {
+  const cfg = (state.settings.show ||= { speed: 8, shuffle: false, info: true, fit: 'cover' });
+  if (!Array.isArray(cfg.lists)) cfg.lists = !cfg.filter || cfg.filter === 'all' ? [...ALL_LISTS] : [cfg.filter];
+  delete cfg.filter;
+  cfg.fit ||= 'cover';
+  return cfg;
+}
+const exhibitable = (f) => f.image && f.exhibit !== false;
+function syncShowUI() {
+  const cfg = showCfg();
+  $$('.show-chip').forEach((b) => b.classList.toggle('on', cfg.lists.includes(b.dataset.list)));
+  $('#show-speed').value = String(cfg.speed);
+  $('#show-shuffle').classList.toggle('on', !!cfg.shuffle);
+  $('#show').classList.toggle('no-info', cfg.info === false);
+  $('#show').classList.toggle('fit-contain', cfg.fit === 'contain');
+  $('#show-fit').classList.toggle('on', cfg.fit === 'contain');
+}
 
 function showBuildList(keepId) {
   const cfg = showCfg();
-  let list = state.figures.filter((f) => f.image && (cfg.filter === 'all' || f.status === cfg.filter));
+  let list = state.figures.filter((f) => exhibitable(f) && cfg.lists.includes(f.status));
   if (cfg.shuffle) {
     for (let i = list.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [list[i], list[j]] = [list[j], list[i]]; }
   } else {
@@ -586,18 +662,17 @@ function showBuildList(keepId) {
 
 function openShow(startId) {
   const cfg = showCfg();
+  // Si pides empezar en una figura de una lista que no estás exhibiendo, se añade esa lista
+  const start = startId && byId(startId);
+  if (start && !cfg.lists.includes(start.status)) { cfg.lists.push(start.status); persist(); }
   showBuildList(startId);
-  // Si pides empezar en una figura que el filtro actual excluye, muestra todas
-  if (startId && show.list[show.i]?.id !== startId) { cfg.filter = 'all'; persist(); showBuildList(startId); }
   if (!show.list.length) {
-    // Si el filtro no tiene figuras con imagen, intenta con todas
-    if (cfg.filter !== 'all' && state.figures.some((f) => f.image)) { cfg.filter = 'all'; persist(); showBuildList(startId); }
+    // Si las listas elegidas no tienen figuras exhibibles, intenta con todas
+    if (state.figures.some(exhibitable)) { cfg.lists = [...ALL_LISTS]; persist(); showBuildList(startId); }
     else { toast('Añade imágenes a tus figuras para usar la vitrina'); return; }
   }
-  $('#show-filter').value = cfg.filter;
-  $('#show-speed').value = String(cfg.speed);
-  $('#show-shuffle').classList.toggle('on', !!cfg.shuffle);
-  $('#show').classList.toggle('no-info', cfg.info === false);
+  if (start && exhibitable(start)) show.ptr[start.id] = viewerId === start.id ? viewerIdx : 0;
+  syncShowUI();
   $('#show-a').className = 'show-img';
   $('#show-b').className = 'show-img';
   $('#show').hidden = false;
@@ -619,6 +694,12 @@ function showGo(i, first) {
   show.i = ((i % n) + n) % n;
   const f = show.list[show.i];
   const dur = showCfg().speed;
+  // Cada vez que la figura vuelve a pasar, muestra su siguiente imagen
+  const imgs = f.images;
+  const k = (show.ptr[f.id] || 0) % imgs.length;
+  show.ptr[f.id] = k + 1;
+  const src = imgs[k];
+  show.cur = { id: f.id, k };
 
   // Crossfade entre dos <img>
   const cur = $('#show-' + show.front);
@@ -632,10 +713,11 @@ function showGo(i, first) {
     nxt.classList.add('active');
     show.front = nextKey;
   };
-  if (nxt.getAttribute('src') === f.image && nxt.complete) swap();
-  else { nxt.onload = nxt.onerror = () => { nxt.onload = nxt.onerror = null; swap(); }; nxt.src = f.image; }
+  if (nxt.getAttribute('src') === src && nxt.complete) swap();
+  else { nxt.onload = nxt.onerror = () => { nxt.onload = nxt.onerror = null; swap(); }; nxt.src = src; }
 
-  $('#show-bg').style.backgroundImage = `url("${f.image.replace(/"/g, '%22')}")`;
+  $('#show-bg').style.backgroundImage = `url("${src.replace(/"/g, '%22')}")`;
+  $('#show-dots').innerHTML = imgs.length > 1 ? imgs.map((_, j) => `<i class="${j === k ? 'on' : ''}"></i>`).join('') : '';
   const pill = $('#show-pill');
   pill.textContent = STATUS_TXT[f.status] + (f.status === 'preorder' && f.releaseDate ? ' · ' + fmtMonth(f.releaseDate) : '');
   pill.className = 'show-pill ' + f.status;
@@ -647,7 +729,7 @@ function showGo(i, first) {
 
   // Precarga la siguiente
   const pre = show.list[(show.i + 1) % n];
-  if (pre) new Image().src = pre.image;
+  if (pre) new Image().src = pre.images[(show.ptr[pre.id] || 0) % pre.images.length];
 
   showSchedule();
 }
@@ -658,7 +740,8 @@ function showSchedule() {
   bar.style.transition = 'none';
   bar.style.width = '0';
   $('#show-play').textContent = show.playing ? '❚❚' : '▶';
-  if (!show.playing || show.list.length < 2) return;
+  const only = show.list.length === 1 ? show.list[0] : null;
+  if (!show.playing || (only && only.images.length < 2)) return;
   const ms = showCfg().speed * 1000;
   void bar.offsetWidth;
   bar.style.transition = `width ${ms}ms linear`;
@@ -683,11 +766,27 @@ $('#show-next').addEventListener('click', () => { showGo(show.i + 1); showPoke()
 $('#show-play').addEventListener('click', showToggle);
 $('#show-stage').addEventListener('click', () => { if ($('#show').classList.contains('idle')) showPoke(); else showToggle(); });
 $('#show').addEventListener('mousemove', showPoke);
-$('#show-filter').addEventListener('change', (e) => {
-  showCfg().filter = e.target.value; persist();
-  showBuildList();
-  if (!show.list.length) { toast('No hay figuras con imagen en esa lista'); return; }
-  showGo(0);
+// Al sacar el ratón de la ventana, el nombre vuelve a difuminarse
+$('#show').addEventListener('mouseleave', () => { clearTimeout(show.idleTimer); $('#show').classList.add('idle'); });
+$('#show-lists').addEventListener('click', (e) => {
+  const b = e.target.closest('.show-chip');
+  if (!b) return;
+  const cfg = showCfg();
+  const l = b.dataset.list;
+  const next = cfg.lists.includes(l) ? cfg.lists.filter((x) => x !== l) : [...cfg.lists, l];
+  if (!next.length) { toast('Elige al menos una lista'); return; }
+  const prevLists = cfg.lists;
+  cfg.lists = next;
+  const keep = show.cur?.id;
+  showBuildList(keep);
+  if (!show.list.length) { cfg.lists = prevLists; showBuildList(keep); toast('Esa lista no tiene figuras con imagen'); return; }
+  persist();
+  syncShowUI();
+  if (show.list[show.i]?.id !== keep) showGo(show.i);
+  else $('#show-count').textContent = `${show.i + 1} / ${show.list.length}`;
+});
+$('#show-fit').addEventListener('click', () => {
+  const cfg = showCfg(); cfg.fit = cfg.fit === 'contain' ? 'cover' : 'contain'; persist(); syncShowUI();
 });
 $('#show-speed').addEventListener('change', (e) => { showCfg().speed = +e.target.value; persist(); showSchedule(); });
 $('#show-shuffle').addEventListener('click', (e) => {
@@ -720,6 +819,7 @@ function showKeys(e) {
   if (k === 'Escape') { if (!doc.fullscreenElement) closeShow(); }
   else if (k === 'ArrowRight') showGo(show.i + 1);
   else if (k === 'ArrowLeft') showGo(show.i - 1);
+  else if (k === 'ArrowUp' || k === 'ArrowDown') showGo(show.i); // otra imagen de la misma figura
   else if (k === ' ') { e.preventDefault(); showToggle(); }
   else if (k === 'f' || k === 'F') $('#show-fs').click();
   else if (k === 'i' || k === 'I') $('#show-info').click();
@@ -753,7 +853,7 @@ $('#import-file').addEventListener('change', async (e) => {
     const data = JSON.parse(await file.text());
     if (!Array.isArray(data.figures)) throw new Error('formato');
     if (!(await ask(`Se importarán ${data.figures.length} figuras y se reemplazarán las actuales. ¿Continuar?`, 'Importar'))) return;
-    state = { figures: data.figures, settings: { currency: 'MXN', ...data.settings } };
+    loadState(data);
     persist(); render();
     $('#settings').close();
     toast('Copia importada');
@@ -765,7 +865,7 @@ $('#import-file').addEventListener('change', async (e) => {
    ====================================================================== */
 (async function init() {
   const data = await store.load();
-  if (data && Array.isArray(data.figures)) state = { figures: data.figures, settings: { currency: 'MXN', ...data.settings } };
+  if (data && Array.isArray(data.figures)) loadState(data);
   await initWindow();
   render();
 })();

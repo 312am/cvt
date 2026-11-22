@@ -49,18 +49,22 @@
         <button type="button" class="icon-btn" id="modal-x">✕</button>
       </div>
 
-      <div class="dropzone" id="dropzone" tabindex="0">
+      <div class="dropzone" id="dropzone" tabindex="0" title="Añadir imágenes">
         <img id="img-preview" alt="" hidden />
         <div class="dz-hint" id="dz-hint">
-          <strong>Imagen</strong><br />
-          Haz clic, arrastra o pega (Ctrl+V)
+          <strong>Imágenes</strong><br />
+          Haz clic, arrastra o pega (Ctrl+V)<br />
+          <span class="small">Puedes añadir varias de la misma figura</span>
         </div>
-        <button type="button" class="dz-clear" id="img-clear" hidden title="Quitar imagen">✕</button>
       </div>
-      <input type="file" id="file" accept="image/*" hidden />
-      <label class="field"><span>…o URL de la imagen</span>
-        <input id="f-imgurl" type="url" placeholder="https://…" />
-      </label>
+      <div class="gallery" id="gallery" hidden></div>
+      <input type="file" id="file" accept="image/*" multiple hidden />
+      <div class="field"><span>…o añade una imagen por URL</span>
+        <div class="url-row">
+          <input id="f-imgurl" type="url" placeholder="https://…" />
+          <button type="button" class="btn" id="btn-addurl">Añadir</button>
+        </div>
+      </div>
 
       <label class="field"><span>Nombre *</span>
         <input id="f-name" required placeholder="Ej. Rem 1/7 Crystal Dress" />
@@ -88,6 +92,7 @@
         <label class="field"><span>Fecha límite de pago</span><input id="f-due" type="date" /></label>
       </div>
       <label class="field"><span>Notas</span><textarea id="f-notes" rows="2"></textarea></label>
+      <label class="check"><input type="checkbox" id="f-exhibit" checked /> <span>🖼 Exhibir en la vitrina</span></label>
 
       <div class="modal-actions">
         <button type="button" class="btn danger" id="btn-delete" hidden>Eliminar</button>
@@ -100,7 +105,7 @@
 
   <!-- Visor de imagen -->
   <dialog id="viewer" class="viewer">
-    <img id="viewer-img" alt="" />
+    <img id="viewer-img" alt="" title="Clic para ver la siguiente imagen" />
     <div class="viewer-cap"><span id="viewer-cap"></span> <button class="btn" id="viewer-show">🖼 Vitrina desde aquí</button></div>
   </dialog>
 
@@ -156,16 +161,16 @@
       <span class="show-pill" id="show-pill"></span>
       <div class="show-name" id="show-name"></div>
       <div class="show-sub" id="show-sub"></div>
+      <div class="show-dots" id="show-dots"></div>
     </div>
     <div class="show-top">
       <span class="show-count" id="show-count"></span>
       <span class="spacer"></span>
-      <select id="show-filter" title="Qué figuras mostrar">
-        <option value="all">Todas</option>
-        <option value="owned">Compradas</option>
-        <option value="preorder">Pre-orden</option>
-        <option value="wish">Deseadas</option>
-      </select>
+      <div class="show-lists" id="show-lists" title="Qué listas exhibir">
+        <button class="show-chip" data-list="owned">Compradas</button>
+        <button class="show-chip" data-list="preorder">Pre-orden</button>
+        <button class="show-chip" data-list="wish">Deseadas</button>
+      </div>
       <select id="show-speed" title="Cambiar cada…">
         <option value="3">3 s</option>
         <option value="5">5 s</option>
@@ -175,6 +180,7 @@
         <option value="60">1 min</option>
       </select>
       <button class="show-btn" id="show-shuffle" title="Orden aleatorio">🔀</button>
+      <button class="show-btn" id="show-fit" title="Llenar pantalla / ver figura completa">▣</button>
       <button class="show-btn" id="show-info" title="Mostrar/ocultar nombre">ℹ</button>
       <button class="show-btn" id="show-fs" title="Pantalla completa (F)">⛶</button>
       <button class="show-btn" id="show-close" title="Salir (Esc)">✕</button>
